@@ -11,14 +11,10 @@ import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { getObservable } from '../map/utils.js';
 import { isNil } from '../utils.js';
+import { LayerUidKey } from './property-key.js';
 
-/**
- * Layers common properties
- */
 export enum CommonProperties {
-  LayerUid = 'olcLayerUid',
-  Label = 'olcLabel',
-  visible = 'olcVisible',
+  LayerUidKey = 'olcLayerUid',
 }
 
 /**
@@ -31,7 +27,7 @@ export interface LayerGroupOptions {
    */
   position?: number;
   /** Unique ID for the layer group. */
-  [CommonProperties.LayerUid]?: string;
+  [LayerUidKey]?: string;
 }
 
 /**
@@ -100,7 +96,7 @@ export class LayerGroup {
       this.layerGroup
         .getLayers()
         .getArray()
-        .find((layer) => layer.get(CommonProperties.LayerUid) === layerUid) || null
+        .find((layer) => layer.get(LayerUidKey) === layerUid) || null
     );
   }
 
@@ -158,7 +154,7 @@ export class LayerGroup {
     if (this.getLayer(layerUid)) {
       return false;
     }
-    layer.set(CommonProperties.LayerUid, layerUid);
+    layer.set(LayerUidKey, layerUid);
     return true;
   }
 
@@ -175,7 +171,7 @@ export class LayerGroup {
     }
     this.layerGroup = new OlLayerGroup({
       properties: {
-        [CommonProperties.LayerUid]: layerGroupUid,
+        [LayerUidKey]: layerGroupUid,
       },
     });
     insertAtKeepOrder(
@@ -196,7 +192,7 @@ export class LayerGroup {
         .getArray()
         .find(
           (layerGroup) =>
-            layerGroup.get(CommonProperties.LayerUid) === layerUid &&
+            layerGroup.get(LayerUidKey) === layerUid &&
             layerGroup instanceof OlLayerGroup,
         ) as OlLayerGroup) || null
     );
@@ -207,7 +203,7 @@ export class LayerGroup {
    * @protected
    */
   protected getObservableName(observableName: string) {
-    const layerGroupUid = this.layerGroup.get(CommonProperties.LayerUid);
+    const layerGroupUid = this.layerGroup.get(LayerUidKey);
     return this.getObservableNameFromLayerUid(observableName, layerGroupUid);
   }
 

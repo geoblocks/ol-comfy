@@ -4,8 +4,8 @@ import OlLayerGroup from 'ol/layer/Group.js';
 import { BackgroundLayerGroup } from './background-layer-group.js';
 import { Map } from '../map/map.js';
 import { getLayerGroup } from '../test/test-data.js';
-import { CommonProperties } from './layer-group.js';
 import type OlEvent from 'ol/events/Event.js';
+import { LayerUidKey } from './property-key.js';
 
 describe('BackgroundLayerGroup', () => {
   let bgGroup: BackgroundLayerGroup;
@@ -39,7 +39,7 @@ describe('BackgroundLayerGroup', () => {
             .getLayers()
             .getArray()
             .find((layer) => layer.getVisible());
-          expect(visibleLayer?.get(CommonProperties.LayerUid)).toEqual('secondLayer');
+          expect(visibleLayer?.get(LayerUidKey)).toEqual('secondLayer');
           done('Done');
         }
       });

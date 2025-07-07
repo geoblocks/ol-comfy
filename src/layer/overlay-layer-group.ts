@@ -1,7 +1,8 @@
 import has from 'lodash/has.js';
 import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
-import { CommonProperties, LayerGroup, type LayerGroupOptions } from './layer-group.js';
+import { LayerGroup, type LayerGroupOptions } from './layer-group.js';
+import { LayerUidKey } from './property-key.js';
 import {
   createEmpty as olCreateEmptyExtent,
   extend as olExtend,
@@ -23,7 +24,7 @@ export const DefaultOverlayLayerGroupName = 'olcOverlayLayerGroup';
  * Feature selected event definition.
  */
 export interface FeatureSelected {
-  [CommonProperties.LayerUid]: string;
+  [LayerUidKey]: string;
   selected: OlFeature<OlGeometry>[];
   deselected: OlFeature<OlGeometry>[];
 }
@@ -32,7 +33,7 @@ export interface FeatureSelected {
  * Event definition for change in feature property
  */
 export interface FeaturePropertyChanged {
-  [CommonProperties.LayerUid]: string;
+  [LayerUidKey]: string;
   propertyKey: string;
 }
 
@@ -46,8 +47,7 @@ export class OverlayLayerGroup extends LayerGroup {
   private readonly featuresPropertyChangedId = 'olcOverlayLayerFeaturePropertyChanged';
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
-    const layerGroupUid =
-      options[CommonProperties.LayerUid] || DefaultOverlayLayerGroupName;
+    const layerGroupUid = options[LayerUidKey] || DefaultOverlayLayerGroupName;
     super(map, layerGroupUid);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
@@ -186,7 +186,7 @@ export class OverlayLayerGroup extends LayerGroup {
         (currentExtent, layer) =>
           olExtend(
             currentExtent,
-            this.getLayerFeaturesExtent(layer.get(CommonProperties.LayerUid)) ?? [],
+            this.getLayerFeaturesExtent(layer.get(LayerUidKey)) ?? [],
           ),
         olCreateEmptyExtent(),
       );
@@ -213,7 +213,7 @@ export class OverlayLayerGroup extends LayerGroup {
     deselected: OlFeature<OlGeometry>[],
   ) {
     this.featuresSelected.next({
-      [CommonProperties.LayerUid]: layerUid,
+      [LayerUidKey]: layerUid,
       selected,
       deselected,
     });
@@ -233,7 +233,7 @@ export class OverlayLayerGroup extends LayerGroup {
     });
     this.getLayer(layerUid)?.changed();
     this.featuresPropertyChanged.next({
-      [CommonProperties.LayerUid]: layerUid,
+      [LayerUidKey]: layerUid,
       propertyKey: key,
     });
   }
