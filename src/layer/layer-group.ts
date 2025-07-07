@@ -11,10 +11,6 @@ import { insertAtKeepOrder } from '../collection.js';
 import { isNil } from '../utils.js';
 import { LayerUidKey } from './property-key.js';
 
-export enum CommonProperties {
-  LayerUidKey = 'olcLayerUid',
-}
-
 /**
  * Options to create a layer group.
  */

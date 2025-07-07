@@ -200,17 +200,17 @@ describe('OverlayLayerGroup', () => {
     });
   });
 
-  it('should emitSelectFeatures', () =>
+  it('should emitAffectedFeatures', () =>
     new Promise((done) => {
       const layerUid = 'overlay';
       const features = [new OlFeature({ geometry: new OlGeomPoint([3000, -1000]) })];
-      overlayLayerGroup.featuresSelected.subscribe((evt) => {
+      overlayLayerGroup.featuresAffected.subscribe((evt) => {
         expect(evt[LayerUidKey]).toBe(layerUid);
-        expect(evt.selected.length).toEqual(0);
-        expect(evt.deselected).toBe(features);
+        expect(evt.affected.length).toEqual(0);
+        expect(evt.noMoreAffected).toBe(features);
         done('Done');
       });
-      overlayLayerGroup.emitSelectFeatures(layerUid, [], features);
+      overlayLayerGroup.emitAffectedFeatures(layerUid, 'deselected', [], features);
     }));
 
   it('should setFeaturesProperty', () => {

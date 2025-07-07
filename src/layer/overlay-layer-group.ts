@@ -20,12 +20,13 @@ import { getFeaturesExtent } from '../feature/utils.js';
 export const DefaultOverlayLayerGroupName = 'olcOverlayLayerGroup';
 
 /**
- * Feature selected event definition.
+ * Feature "affected" event definition.
  */
-export interface FeatureSelected {
+export interface FeatureAffected {
   [LayerUidKey]: string;
-  selected: OlFeature<OlGeometry>[];
-  deselected: OlFeature<OlGeometry>[];
+  reason: string;
+  affected: OlFeature<OlGeometry>[];
+  noMoreAffected?: OlFeature<OlGeometry>[];
 }
 
 /**
@@ -42,7 +43,13 @@ export interface FeaturePropertyChanged {
  * The default position is 20.
  */
 export class OverlayLayerGroup extends LayerGroup {
-  readonly featuresSelected: Subject<FeatureSelected>;
+  /**
+   * To provide changed-like event, without touching the original features.
+   * With source layer uid, free reason why/by/for it's emitted, the affected features
+   * and the not anymore affected features.
+   * Example: emit/listen to selected/deselected (as reason) features without touching the real features.
+   */
+  readonly featuresAffected: Subject<FeatureAffected>;
   readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
@@ -50,7 +57,7 @@ export class OverlayLayerGroup extends LayerGroup {
     super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
-    this.featuresSelected = new Subject<FeatureSelected>();
+    this.featuresAffected = new Subject<FeatureAffected>();
     this.featuresPropertyChanged = new Subject<FeaturePropertyChanged>();
   }
 
@@ -182,17 +189,19 @@ export class OverlayLayerGroup extends LayerGroup {
   }
 
   /**
-   * Emit a select feature event.
+   * Emit an "affected" feature event.
    */
-  emitSelectFeatures(
+  emitAffectedFeatures(
     layerUid: string,
-    selected: OlFeature<OlGeometry>[],
-    deselected: OlFeature<OlGeometry>[],
+    reason: string,
+    affected: OlFeature<OlGeometry>[],
+    noMoreAffected?: OlFeature<OlGeometry>[],
   ) {
-    this.featuresSelected.next({
+    this.featuresAffected.next({
       [LayerUidKey]: layerUid,
-      selected,
-      deselected,
+      reason,
+      affected,
+      noMoreAffected,
     });
   }
 
