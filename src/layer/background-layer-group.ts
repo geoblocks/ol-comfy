@@ -12,7 +12,7 @@ export const DefaultLayerBGGroupName = 'olcBackgroundLayerGroup';
 export class BackgroundLayerGroup extends LayerGroup {
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
     const layerGroupUid = options[LayerUidKey] || DefaultLayerBGGroupName;
-    super(map, layerGroupUid);
+    super(map);
     const position = options.position ?? 0;
     this.addLayerGroup(layerGroupUid, position);
   }

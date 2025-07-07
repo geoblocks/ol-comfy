@@ -3,6 +3,7 @@
 List changes at major/minor level. Patches should be straightforward.
 
 ## 1.1.0
+- Remove layerAdded observable; Use native collection events instead.
 - Move EmptyStyle to a dedicated `src/style.ts` file.
 - Remove CommonProperties from the `src/layer/layer-group.ts` file and move the `LayerUid` key into
   `src/layer/propertiy-key.ts` as `LayerUidKey`.

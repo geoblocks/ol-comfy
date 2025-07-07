@@ -6,6 +6,8 @@ import { Map } from '../map/map.js';
 import { LayerGroup } from './layer-group.js';
 import { getLayerGroup } from '../test/test-data.js';
 import { BackgroundLayerGroup } from './background-layer-group.js';
+import { CollectionEvent } from 'ol/Collection.js';
+import BaseLayer from 'ol/layer/Base.js';
 
 describe('LayersStore', () => {
   let layerGroup: LayerGroup;
@@ -18,10 +20,13 @@ describe('LayersStore', () => {
 
   it('should addLayer', () =>
     new Promise((done) => {
-      layerGroup.layerAdded.subscribe((layer) => {
-        expect(layer).toEqual(baseLayer);
-        done('Done');
-      });
+      layerGroup
+        .getLayerGroup()
+        .getLayers()
+        .on('add', (evt: CollectionEvent<BaseLayer>) => {
+          expect(evt.element).toEqual(baseLayer);
+          done('Done');
+        });
       layerGroup.addLayer(baseLayer, 'myLayer');
       expect(getLayerGroup(layerGroup, 0).getLayers().getLength()).toEqual(1);
     }));

@@ -1,6 +1,5 @@
 import flatten from 'lodash/flatten.js';
 import uniq from 'lodash/uniq.js';
-import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
 import OlCollection from 'ol/Collection.js';
 import OlLayerGroup from 'ol/layer/Group.js';
@@ -9,7 +8,6 @@ import OlLayerLayer from 'ol/layer/Layer.js';
 import OlSourceSource from 'ol/source/Source.js';
 import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
-import { getObservable } from '../map/utils.js';
 import { isNil } from '../utils.js';
 import { LayerUidKey } from './property-key.js';
 
@@ -35,24 +33,12 @@ export interface LayerGroupOptions {
  * The child class must start by setting the layerGroup.
  */
 export class LayerGroup {
-  private readonly layerAddedId = 'olcLayerAdded';
   protected readonly map: OlMap;
   // @ts-expect-error this will be handled by the child classes
   protected layerGroup: OlLayerGroup;
 
-  constructor(map: OlMap, layerGroupUid: string) {
+  constructor(map: OlMap) {
     this.map = map;
-    this.addObservables(layerGroupUid);
-  }
-
-  /**
-   * @returns an observables that notify addition of layer in this group.
-   */
-  get layerAdded(): Subject<OlLayerBase> {
-    return getObservable(
-      this.map,
-      this.getObservableName(this.layerAddedId),
-    ) as Subject<OlLayerBase>;
   }
 
   /**
@@ -84,7 +70,6 @@ export class LayerGroup {
       return;
     }
     this.layerGroup.getLayers().push(layer);
-    this.layerAdded.next(layer);
   }
 
   /**
@@ -213,22 +198,6 @@ export class LayerGroup {
    */
   private getObservableNameFromLayerUid(observableName: string, layerGroupUid: string) {
     return `${observableName}-${layerGroupUid}`;
-  }
-
-  /**
-   * Add layer group observables to the map if it doesn't already exist.
-   * These instances of observables will never be set or removed.
-   * @private
-   */
-  private addObservables(layerGroupUid: string) {
-    const observableName = this.getObservableNameFromLayerUid(
-      this.layerAddedId,
-      layerGroupUid,
-    );
-    if (getObservable(this.map, observableName)) {
-      return;
-    }
-    this.map.set(observableName, new Subject<OlLayerBase>());
   }
 
   /**

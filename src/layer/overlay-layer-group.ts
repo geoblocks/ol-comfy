@@ -48,7 +48,7 @@ export class OverlayLayerGroup extends LayerGroup {
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
     const layerGroupUid = options[LayerUidKey] || DefaultOverlayLayerGroupName;
-    super(map, layerGroupUid);
+    super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
     this.addOverlayLayerObservables();
