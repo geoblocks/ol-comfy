@@ -20,6 +20,7 @@ again the same state.
 
 - [Documentation](https://geoblocks.github.io/ol-comfy/apidoc/index.html);
 - [Demo](https://geoblocks.github.io/ol-comfy/examples/index.html);
+- [Source code](https://github.com/geoblocks/ol-comfy)
 
 ## Local development
 
