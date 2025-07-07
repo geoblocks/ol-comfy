@@ -15,26 +15,27 @@ import OlSourceVector from 'ol/source/Vector.js';
 import { Geometry as OlGeometry } from 'ol/geom.js';
 import OlCollection from 'ol/Collection.js';
 import OlSourceCluster from 'ol/source/Cluster.js';
-import { getObservable } from '../map/utils.js';
 import { getFeaturesExtent } from '../feature/utils.js';
 
 export const DefaultOverlayLayerGroupName = 'olcOverlayLayerGroup';
 
 /**
- * Feature selected event definition.
+ * Feature "affected" event definition.
  */
-export interface FeatureSelected {
+export interface FeatureAffected {
   [LayerUidKey]: string;
-  selected: OlFeature<OlGeometry>[];
-  deselected: OlFeature<OlGeometry>[];
+  reason: string;
+  affected: OlFeature[];
+  noMoreAffected?: OlFeature[];
 }
 
 /**
- * Event definition for change in feature property
+ * Event definition for change in feature property.
  */
 export interface FeaturePropertyChanged {
   [LayerUidKey]: string;
   propertyKey: string;
+  features: OlFeature[];
 }
 
 /**
@@ -43,38 +44,26 @@ export interface FeaturePropertyChanged {
  * The default position is 20.
  */
 export class OverlayLayerGroup extends LayerGroup {
-  private readonly featureSelectedId = 'olcOverlayLayerFeatureSelected';
-  private readonly featuresPropertyChangedId = 'olcOverlayLayerFeaturePropertyChanged';
+  /**
+   * To provide changed-like event, without touching the original features.
+   * With source layer uid, free reason why/by/for it's emitted, the affected features
+   * and the not anymore affected features.
+   * Example: emit/listen to selected/deselected (as reason) features without touching the real features.
+   */
+  readonly featuresAffected: Subject<FeatureAffected>;
+  /**
+   * Event to observe feature property change in layers of this group and without the need of having
+   * the feature itself.
+   */
+  readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
     const layerGroupUid = options[LayerUidKey] || DefaultOverlayLayerGroupName;
-    super(map, layerGroupUid);
+    super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
-    this.addOverlayLayerObservables();
-  }
-
-  /**
-   * Add feature selected observable on this group. To call manually on
-   * feature selection.
-   * See emitSelectFeatures.
-   */
-  get featuresSelected(): Subject<FeatureSelected> {
-    return getObservable(
-      this.map,
-      this.getObservableName(this.featureSelectedId),
-    ) as Subject<FeatureSelected>;
-  }
-
-  /**
-   * Add feature property changed observable on this group.
-   * See setFeaturesProperty.
-   */
-  get featuresPropertyChanged(): Subject<FeaturePropertyChanged> {
-    return getObservable(
-      this.map,
-      this.getObservableName(this.featuresPropertyChangedId),
-    ) as Subject<FeaturePropertyChanged>;
+    this.featuresAffected = new Subject<FeatureAffected>();
+    this.featuresPropertyChanged = new Subject<FeaturePropertyChanged>();
   }
 
   /**
@@ -205,36 +194,53 @@ export class OverlayLayerGroup extends LayerGroup {
   }
 
   /**
-   * Emit a select feature event.
+   * Emit an "affected" feature event.
    */
-  emitSelectFeatures(
+  emitFeaturesAffected(
     layerUid: string,
-    selected: OlFeature<OlGeometry>[],
-    deselected: OlFeature<OlGeometry>[],
+    reason: string,
+    affected: OlFeature<OlGeometry>[],
+    noMoreAffected?: OlFeature<OlGeometry>[],
   ) {
-    this.featuresSelected.next({
+    this.featuresAffected.next({
       [LayerUidKey]: layerUid,
-      selected,
-      deselected,
+      reason,
+      affected,
+      noMoreAffected,
     });
   }
 
   /**
    * Set a property of every given feature with the same value.
+   * If you want to set different values, set the feature manually (with silent=true), then call
+   * emitFeaturePropertyChange to redraw the ol layer and emit a featuresPropertyChanged event.
+   * Or call featuresPropertyChanged manually if necessary.
    */
   setFeaturesProperty(
     layerUid: string,
-    features: OlFeature<OlGeometry>[],
-    key: string,
+    features: OlFeature[],
+    propertyKey: string,
     value: unknown,
   ) {
     features.forEach((feature) => {
-      feature.set(key, value, true);
+      feature.set(propertyKey, value, true);
     });
+    this.emitFeaturePropertyChanged(layerUid, features, propertyKey);
+  }
+
+  /**
+   * Emits a "featuresPropertyChanged" and call a "changed" event on the matching OL layer.
+   */
+  emitFeaturePropertyChanged(
+    layerUid: string,
+    features: OlFeature[],
+    propertyKey: string,
+  ) {
     this.getLayer(layerUid)?.changed();
     this.featuresPropertyChanged.next({
       [LayerUidKey]: layerUid,
-      propertyKey: key,
+      propertyKey,
+      features,
     });
   }
 
@@ -248,24 +254,5 @@ export class OverlayLayerGroup extends LayerGroup {
   getClusterFeatures(layerUid: string): OlFeature<OlGeometry>[] | null {
     const source = this.getVectorSource(layerUid);
     return source ? source.getFeatures() : null;
-  }
-
-  /**
-   * Add overlay layer observables to the map if it doesn't already exist.
-   * These instances of observables will never be set or removed.
-   * @private
-   */
-  private addOverlayLayerObservables() {
-    if (getObservable(this.map, this.getObservableName(this.featureSelectedId))) {
-      return;
-    }
-    this.map.set(
-      this.getObservableName(this.featureSelectedId),
-      new Subject<FeatureSelected>(),
-    );
-    this.map.set(
-      this.getObservableName(this.featuresPropertyChangedId),
-      new Subject<FeaturePropertyChanged>(),
-    );
   }
 }
