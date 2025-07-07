@@ -15,7 +15,6 @@ import OlSourceVector from 'ol/source/Vector.js';
 import { Geometry as OlGeometry } from 'ol/geom.js';
 import OlCollection from 'ol/Collection.js';
 import OlSourceCluster from 'ol/source/Cluster.js';
-import { getObservable } from '../map/utils.js';
 import { getFeaturesExtent } from '../feature/utils.js';
 
 export const DefaultOverlayLayerGroupName = 'olcOverlayLayerGroup';
@@ -43,38 +42,16 @@ export interface FeaturePropertyChanged {
  * The default position is 20.
  */
 export class OverlayLayerGroup extends LayerGroup {
-  private readonly featureSelectedId = 'olcOverlayLayerFeatureSelected';
-  private readonly featuresPropertyChangedId = 'olcOverlayLayerFeaturePropertyChanged';
+  readonly featuresSelected: Subject<FeatureSelected>;
+  readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
     const layerGroupUid = options[LayerUidKey] || DefaultOverlayLayerGroupName;
     super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
-    this.addOverlayLayerObservables();
-  }
-
-  /**
-   * Add feature selected observable on this group. To call manually on
-   * feature selection.
-   * See emitSelectFeatures.
-   */
-  get featuresSelected(): Subject<FeatureSelected> {
-    return getObservable(
-      this.map,
-      this.getObservableName(this.featureSelectedId),
-    ) as Subject<FeatureSelected>;
-  }
-
-  /**
-   * Add feature property changed observable on this group.
-   * See setFeaturesProperty.
-   */
-  get featuresPropertyChanged(): Subject<FeaturePropertyChanged> {
-    return getObservable(
-      this.map,
-      this.getObservableName(this.featuresPropertyChangedId),
-    ) as Subject<FeaturePropertyChanged>;
+    this.featuresSelected = new Subject<FeatureSelected>();
+    this.featuresPropertyChanged = new Subject<FeaturePropertyChanged>();
   }
 
   /**
@@ -248,24 +225,5 @@ export class OverlayLayerGroup extends LayerGroup {
   getClusterFeatures(layerUid: string): OlFeature<OlGeometry>[] | null {
     const source = this.getVectorSource(layerUid);
     return source ? source.getFeatures() : null;
-  }
-
-  /**
-   * Add overlay layer observables to the map if it doesn't already exist.
-   * These instances of observables will never be set or removed.
-   * @private
-   */
-  private addOverlayLayerObservables() {
-    if (getObservable(this.map, this.getObservableName(this.featureSelectedId))) {
-      return;
-    }
-    this.map.set(
-      this.getObservableName(this.featureSelectedId),
-      new Subject<FeatureSelected>(),
-    );
-    this.map.set(
-      this.getObservableName(this.featuresPropertyChangedId),
-      new Subject<FeaturePropertyChanged>(),
-    );
   }
 }

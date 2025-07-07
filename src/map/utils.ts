@@ -1,4 +1,3 @@
-import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
 import { isNil } from '../utils.js';
 
@@ -19,14 +18,4 @@ export const getDistanceFromAmountOfPixel = (
     return 0;
   }
   return Math.abs(coord1[0] - coord2[0]);
-};
-
-/**
- * @returns An observable stored in the map and created by Ol-Comfy.
- */
-export const getObservable = (
-  map: OlMap,
-  observableUid: string,
-): Subject<unknown> | undefined => {
-  return map.get(observableUid);
 };
