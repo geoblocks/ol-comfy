@@ -210,7 +210,7 @@ describe('OverlayLayerGroup', () => {
         expect(evt.noMoreAffected).toBe(features);
         done('Done');
       });
-      overlayLayerGroup.emitAffectedFeatures(layerUid, 'deselected', [], features);
+      overlayLayerGroup.emitFeaturesAffected(layerUid, 'deselected', [], features);
     }));
 
   it('should setFeaturesProperty', () => {
@@ -241,6 +241,7 @@ describe('OverlayLayerGroup', () => {
       overlayLayerGroup.featuresPropertyChanged.subscribe((evt) => {
         expect(evt[LayerUidKey]).toBe(layerUid);
         expect(evt.propertyKey).toBe('foo');
+        expect(evt.features).toEqual(features);
         done('Done');
       });
       overlayLayerGroup.setFeaturesProperty(

@@ -1,6 +1,5 @@
 import { overEvery } from 'lodash';
 import { Map } from '../../src/map/map.js';
-import type { DrawEvent as OlDrawEvent } from 'ol/interaction/Draw.js';
 import OlView from 'ol/View.js';
 import OlLayerTile from 'ol/layer/Tile.js';
 import OlLayerVector from 'ol/layer/Vector.js';
@@ -127,11 +126,11 @@ const setupDrawing = () => {
   // Custom listener for this component.
   eventKeys.push(
     ...[
-      drawPoint.getInteraction().on('drawend', (evt: OlDrawEvent) => {
-        print(`Point ${evt.feature.get('ol_uid')} added.`);
+      drawPoint.getInteraction().on('drawend', () => {
+        print(`Point added.`);
       }),
-      drawLine.getInteraction().on('drawend', (evt: OlDrawEvent) => {
-        print(`Line ${evt.feature.get('ol_uid')} added.`);
+      drawLine.getInteraction().on('drawend', () => {
+        print(`Line added.`);
       }),
     ],
   );

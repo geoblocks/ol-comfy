@@ -25,16 +25,17 @@ export const DefaultOverlayLayerGroupName = 'olcOverlayLayerGroup';
 export interface FeatureAffected {
   [LayerUidKey]: string;
   reason: string;
-  affected: OlFeature<OlGeometry>[];
-  noMoreAffected?: OlFeature<OlGeometry>[];
+  affected: OlFeature[];
+  noMoreAffected?: OlFeature[];
 }
 
 /**
- * Event definition for change in feature property
+ * Event definition for change in feature property.
  */
 export interface FeaturePropertyChanged {
   [LayerUidKey]: string;
   propertyKey: string;
+  features: OlFeature[];
 }
 
 /**
@@ -50,6 +51,10 @@ export class OverlayLayerGroup extends LayerGroup {
    * Example: emit/listen to selected/deselected (as reason) features without touching the real features.
    */
   readonly featuresAffected: Subject<FeatureAffected>;
+  /**
+   * Event to observe feature property change in layers of this group and without the need of having
+   * the feature itself.
+   */
   readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
@@ -191,7 +196,7 @@ export class OverlayLayerGroup extends LayerGroup {
   /**
    * Emit an "affected" feature event.
    */
-  emitAffectedFeatures(
+  emitFeaturesAffected(
     layerUid: string,
     reason: string,
     affected: OlFeature<OlGeometry>[],
@@ -207,20 +212,35 @@ export class OverlayLayerGroup extends LayerGroup {
 
   /**
    * Set a property of every given feature with the same value.
+   * If you want to set different values, set the feature manually (with silent=true), then call
+   * emitFeaturePropertyChange to redraw the ol layer and emit a featuresPropertyChanged event.
+   * Or call featuresPropertyChanged manually if necessary.
    */
   setFeaturesProperty(
     layerUid: string,
-    features: OlFeature<OlGeometry>[],
-    key: string,
+    features: OlFeature[],
+    propertyKey: string,
     value: unknown,
   ) {
     features.forEach((feature) => {
-      feature.set(key, value, true);
+      feature.set(propertyKey, value, true);
     });
+    this.emitFeaturePropertyChanged(layerUid, features, propertyKey);
+  }
+
+  /**
+   * Emits a "featuresPropertyChanged" and call a "changed" event on the matching OL layer.
+   */
+  emitFeaturePropertyChanged(
+    layerUid: string,
+    features: OlFeature[],
+    propertyKey: string,
+  ) {
     this.getLayer(layerUid)?.changed();
     this.featuresPropertyChanged.next({
       [LayerUidKey]: layerUid,
-      propertyKey: key,
+      propertyKey,
+      features,
     });
   }
 
