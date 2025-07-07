@@ -5,7 +5,7 @@ import { BackgroundLayerGroup } from './background-layer-group.js';
 import { Map } from '../map/map.js';
 import { getLayerGroup } from '../test/test-data.js';
 import type OlEvent from 'ol/events/Event.js';
-import { LayerUidKey } from './property-key.js';
+import { LayerUidKey } from './layer-group.js';
 
 describe('BackgroundLayerGroup', () => {
   let bgGroup: BackgroundLayerGroup;

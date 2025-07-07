@@ -8,7 +8,7 @@ import OlSourceCluster from 'ol/source/Cluster.js';
 import OlCollection from 'ol/Collection.js';
 import { OverlayLayerGroup } from './overlay-layer-group.js';
 import { Map } from '../map/map.js';
-import { LayerUidKey } from './property-key.js';
+import { LayerUidKey } from './layer-group.js';
 
 describe('OverlayLayerGroup', () => {
   let overlayLayerGroup: OverlayLayerGroup;

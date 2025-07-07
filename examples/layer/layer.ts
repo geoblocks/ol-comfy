@@ -7,9 +7,9 @@ import OlFeature from 'ol/Feature.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import { OSM } from 'ol/source.js';
 import { Map } from '../../src/map/map.js';
-import { LayerUidKey } from '../../src/layer/property-key.js';
 import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
 import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
+import { LayerUidKey } from '../../src/layer/layer-group.js';
 
 // Globally accessible values you need:
 const layer1Id = 'layer1-id';
