@@ -12,7 +12,7 @@ export const DrawInteractionGroupValue = 'olcStandardDraw';
 
 /**
  * Parent class able to enable drawing on an OpenLayers Map.
- * Manage interactions - create,  allow only one draw active at a time,
+ * Manage interactions - create, allow only one draw active at a time,
  * destroy - and let possible find back interactions to add listener on them.
  */
 export class Draw {
@@ -51,7 +51,7 @@ export class Draw {
   }
 
   /**
-   * Activate the interaction (and deactivate other draw interactions), or
+   * Activate the interaction (and deactivate other draw interactions) or
    * deactivate it.
    */
   setActive(active: boolean) {

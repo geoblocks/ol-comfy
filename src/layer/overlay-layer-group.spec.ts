@@ -8,7 +8,7 @@ import OlSourceCluster from 'ol/source/Cluster.js';
 import OlCollection from 'ol/Collection.js';
 import { OverlayLayerGroup } from './overlay-layer-group.js';
 import { Map } from '../map/map.js';
-import { CommonProperties } from './layer-group.js';
+import { LayerUidKey } from './property-key.js';
 
 describe('OverlayLayerGroup', () => {
   let overlayLayerGroup: OverlayLayerGroup;
@@ -28,8 +28,8 @@ describe('OverlayLayerGroup', () => {
         useSpatialIndex: false,
       }),
     });
-    // Add a tile layer to prove that it doesn't affect tests of method
-    // dedicated to layer with vector source and features.
+    // Add a tile layer to prove that it doesn't affect tests of the method
+    // dedicated to layer with a vector source and features.
     overlayLayerGroup.addLayer(new OlTileLayer(), tileLayerUid);
   });
 
@@ -131,7 +131,7 @@ describe('OverlayLayerGroup', () => {
     it('can does not throw error adding twice a features', () => {
       overlayLayerGroup.addFeatures(layerUid, [features[0]!]);
       expect(getOverlaySource(overlayLayer).getFeatures().length).toEqual(1);
-      // try adding already existing one
+      // try adding an already existing one
       overlayLayerGroup.addFeatures(layerUid, [features[0]!]);
       expect(getOverlaySource(overlayLayer).getFeatures().length).toEqual(1);
     });
@@ -205,7 +205,7 @@ describe('OverlayLayerGroup', () => {
       const layerUid = 'overlay';
       const features = [new OlFeature({ geometry: new OlGeomPoint([3000, -1000]) })];
       overlayLayerGroup.featuresSelected.subscribe((evt) => {
-        expect(evt[CommonProperties.LayerUid]).toBe(layerUid);
+        expect(evt[LayerUidKey]).toBe(layerUid);
         expect(evt.selected.length).toEqual(0);
         expect(evt.deselected).toBe(features);
         done('Done');
@@ -239,7 +239,7 @@ describe('OverlayLayerGroup', () => {
       const propertyKey = 'foo';
       const propertyValue = 'bar';
       overlayLayerGroup.featuresPropertyChanged.subscribe((evt) => {
-        expect(evt[CommonProperties.LayerUid]).toBe(layerUid);
+        expect(evt[LayerUidKey]).toBe(layerUid);
         expect(evt.propertyKey).toBe('foo');
         done('Done');
       });

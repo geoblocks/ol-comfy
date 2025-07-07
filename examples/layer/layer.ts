@@ -7,7 +7,7 @@ import OlFeature from 'ol/Feature.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import { OSM } from 'ol/source.js';
 import { Map } from '../../src/map/map.js';
-import { CommonProperties } from '../../src/layer/layer-group.js';
+import { LayerUidKey } from '../../src/layer/property-key.js';
 import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
 import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
 
@@ -51,7 +51,7 @@ backgroundLayerGroup.addLayer(backgroundLayer1, backgroundLayer1Id);
 
 // A component wanting to know changes on features for a specific layer.
 overlayLayerGroup.featuresPropertyChanged.subscribe((featurePropertyChanged) => {
-  const layer = featurePropertyChanged[CommonProperties.LayerUid];
+  const layer = featurePropertyChanged[LayerUidKey];
   const key = featurePropertyChanged.propertyKey;
   print(`Changed "${key}" in all features of layer "${layer}"`);
 });
