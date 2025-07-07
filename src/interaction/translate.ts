@@ -1,36 +1,40 @@
 import OlInteractionTranslate, {
   type Options as TranslateOptions,
 } from 'ol/interaction/Translate.js';
-import OlMap from 'ol/Map.js';
+import { Interaction } from './Interaction.js';
+import type { InteractionGroup } from './interactionGroup.js';
 
 /**
  * Base class to manage OL Translate interactions.
  */
-export class Translate {
-  private readonly translateInteraction: OlInteractionTranslate;
-
-  /**
-   * Add a new Translate Interaction in the map.
-   */
+export class Translate extends Interaction {
   constructor(
-    private map: OlMap,
+    interactionGroup: InteractionGroup,
+    interactionUid: string,
     options: TranslateOptions,
   ) {
-    this.translateInteraction = new OlInteractionTranslate(options);
-    this.map.addInteraction(this.translateInteraction);
+    super(interactionGroup, interactionUid);
+    this.createInteraction(options);
   }
 
   /**
-   * Removes the interaction from the map.
+   * @returns the interaction.
    */
-  destroy() {
-    this.map.removeInteraction(this.translateInteraction);
+  getInteraction(): OlInteractionTranslate | undefined {
+    return this.interactionGroup.find(this.interactionUid) as
+      | OlInteractionTranslate
+      | undefined;
   }
 
   /**
-   * @returns the interactions.
+   * Instantiate a new interaction.
+   * @private
    */
-  getInteraction(): OlInteractionTranslate {
-    return this.translateInteraction;
+  private createInteraction(options: TranslateOptions) {
+    let interaction = this.interactionGroup.find(this.interactionUid);
+    if (!interaction) {
+      interaction = new OlInteractionTranslate(options);
+      this.interactionGroup.add(this.interactionUid, interaction);
+    }
   }
 }

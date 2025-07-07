@@ -1,34 +1,38 @@
 import OlInteractionSnap, { type Options as SnapOptions } from 'ol/interaction/Snap.js';
-import OlMap from 'ol/Map.js';
+import type { InteractionGroup } from './interactionGroup.js';
+import { Interaction } from './Interaction.js';
 
 /**
  * Base class to manage OL Snap interactions.
  */
-export class Snap {
-  private readonly snapInteraction: OlInteractionSnap;
-
-  /**
-   * Add a new Modify Interaction in the map.
-   */
+export class Snap extends Interaction {
   constructor(
-    private map: OlMap,
+    interactionGroup: InteractionGroup,
+    interactionUid: string,
     options: SnapOptions,
   ) {
-    this.snapInteraction = new OlInteractionSnap(options);
-    this.map.addInteraction(this.snapInteraction);
+    super(interactionGroup, interactionUid);
+    this.createInteraction(options);
   }
 
   /**
-   * Removes the interaction from the map.
+   * @returns the interaction.
    */
-  destroy() {
-    this.map.removeInteraction(this.snapInteraction);
+  getInteraction(): OlInteractionSnap | undefined {
+    return this.interactionGroup.find(this.interactionUid) as
+      | OlInteractionSnap
+      | undefined;
   }
 
   /**
-   * @returns the interactions.
+   * Instantiate a new interaction.
+   * @private
    */
-  getInteraction(): OlInteractionSnap {
-    return this.snapInteraction;
+  private createInteraction(options: SnapOptions) {
+    let interaction = this.interactionGroup.find(this.interactionUid);
+    if (!interaction) {
+      interaction = new OlInteractionSnap(options);
+      this.interactionGroup.add(this.interactionUid, interaction);
+    }
   }
 }

@@ -29,6 +29,7 @@ import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
 import { platformModifierKeyOnly, click } from 'ol/events/condition.js';
 import { EmptyStyle } from '../../src/style.js';
+import { InteractionGroup } from '../../src/interaction/interactionGroup.js';
 
 // Globally accessible values you need:
 const map = Map.createEmptyMap();
@@ -60,18 +61,18 @@ map.setView(
 map.setTarget('map');
 
 // Below: Use ol-comfy.
-// Your controller initializing the layers.
+// Your controller that initializes the layers and interactions.
 let overlayLayerGroup = new OverlayLayerGroup(map);
 overlayLayerGroup.addLayer(layer1, layer1Id);
 const backgroundLayerGroup = new BackgroundLayerGroup(map);
 backgroundLayerGroup.addLayer(backgroundLayer1, backgroundLayer1Id);
+const interactionGroupToModify = new InteractionGroup(map, 'modify');
+const interactionGroupToDraw = new InteractionGroup(map, 'draw');
 
 // A component wanting to enable draw.
 let drawPoint: DrawBasicShape | undefined;
 let drawLine: DrawBasicShape | undefined;
 let modify: Modify | undefined;
-let snap: Snap | undefined;
-let translate: Translate | undefined;
 let listenKey: ListenKey | undefined;
 const eventKeys: EventsKey[] = [];
 
@@ -81,7 +82,7 @@ const eventKeys: EventsKey[] = [];
  * custom condition and custom styling.
  */
 const setupDrawing = () => {
-  // Setup the layer to draw in.
+  // Set up the layer to draw in.
   overlayLayerGroup = new OverlayLayerGroup(map);
   const drawLayer = overlayLayerGroup?.getLayer(layer1Id) as
     | OlLayerVector<OlSourceVector<OlFeature>>
@@ -92,19 +93,23 @@ const setupDrawing = () => {
     return;
   }
   updateLayerStyle(drawLayer, createStyle);
-  // Setup listen "delete" key;
+  // Set up listening of the "delete" key;
   listenKey = new ListenKey('Delete');
   // Setup drawing.
   const pointOptions = DrawBasicShape.getDefaultPointOptions(source);
   pointOptions.style = createStyle;
   pointOptions.condition = () => !listenKey?.isKeyDown();
-  drawPoint = new DrawBasicShape(map, pointOptions, pointInteractionId);
+  drawPoint = new DrawBasicShape(
+    interactionGroupToDraw,
+    pointInteractionId,
+    pointOptions,
+  );
   const lineOptions = DrawBasicShape.getDefaultLineOptions(source);
   lineOptions.style = createStyle;
   lineOptions.condition = () => !listenKey?.isKeyDown();
-  drawLine = new DrawBasicShape(map, lineOptions, lineInteractionId);
-  // Setup modify and translate drawing. Delete with delete+click.
-  modify = new Modify(map, {
+  drawLine = new DrawBasicShape(interactionGroupToDraw, lineInteractionId, lineOptions);
+  // Set up the "modify" and "translate" drawing interactions. Delete with delete+click.
+  modify = new Modify(interactionGroupToModify, 'modify', {
     // Use loadash "overEvery", "overSome" and "negate" to chain conditions.
     deleteCondition: conditionThen(
       overEvery(
@@ -116,20 +121,20 @@ const setupDrawing = () => {
     source,
     style: createStyle,
   });
-  translate = new Translate(map, {
+  new Translate(interactionGroupToModify, 'translate', {
     layers: [drawLayer],
     condition: platformModifierKeyOnly,
   });
-  snap = new Snap(map, {
+  new Snap(interactionGroupToModify, 'snap', {
     source,
   });
   // Custom listener for this component.
   eventKeys.push(
     ...[
-      drawPoint.getInteraction().on('drawend', () => {
+      drawPoint.getInteraction()?.on('drawend', () => {
         print(`Point added.`);
       }),
-      drawLine.getInteraction().on('drawend', () => {
+      drawLine.getInteraction()?.on('drawend', () => {
         print(`Line added.`);
       }),
     ],
@@ -173,9 +178,9 @@ const createStyle = (
 };
 
 /**
- * Delay a bit the delete action to be sur that the OpenLayers is not
+ * Delay the delete action to be sure that the OpenLayers is not
  * currently modifying the feature. (Like in lines, it seems to quickly
- * add then removes a coordinates on click, even with conditions).
+ * add then removes the coordinates on click, even with conditions).
  */
 const delayOnDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
   setTimeout(() => onDeleteAction(mapBrowserEvent), 20);
@@ -183,7 +188,7 @@ const delayOnDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
 
 /**
  * Not ol-comfy but nice to have to delete feature.
- * It's given as callback to the ol-comfy delete condition.
+ * It's given as a callback to the ol-comfy delete condition.
  */
 const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
   mapBrowserEvent.map.forEachFeatureAtPixel(
@@ -192,7 +197,7 @@ const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
       if (!overlayLayerGroup || feature instanceof RenderFeature) {
         return;
       }
-      // Don't remove a line if there is more than two vertexes.
+      // Don't remove a line if there are more than two vertexes.
       const geometry = feature.getGeometry();
       if (
         !geometry ||
@@ -207,8 +212,8 @@ const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
       if (features.includes(feature)) {
         overlayLayerGroup.removeFeatures(layer1Id, [feature]);
         // Make the pointer to be updated in Firefox;
-        modify!.getInteraction().setActive(false);
-        modify!.getInteraction().setActive(true);
+        modify?.getInteraction()?.setActive(false);
+        modify?.getInteraction()?.setActive(true);
       }
     },
   );
@@ -223,26 +228,23 @@ const destroy = (isDemo: boolean) => {
     return;
   }
   unByKeyAll(eventKeys);
-  drawPoint?.destroy();
-  drawLine?.destroy();
-  modify?.destroy();
-  translate?.destroy();
-  snap?.destroy();
+  interactionGroupToDraw.destroy();
+  interactionGroupToModify.destroy();
   listenKey?.destroy();
 };
 
 // Init the "component".
 setupDrawing();
-drawPoint!.setActive(true);
+interactionGroupToDraw.setActive(true, pointInteractionId);
 destroy(true);
 
-// Listen input to enable the right tool. With ol-comfy, enabling a
-// draw tool auto-deactivate other drawing tools.
+// Listen to the inputs to enable the right tool. With ol-comfy, enabling a
+// draw tool auto-deactivates other drawing tools.
 const typeSelect = document.getElementById('type');
 typeSelect!.addEventListener('change', (evt) => {
   if ((evt.target as HTMLInputElement).value === 'point') {
-    drawPoint!.setActive(true);
+    interactionGroupToDraw.setActive(true, pointInteractionId);
   } else {
-    drawLine!.setActive(true);
+    interactionGroupToDraw.setActive(true, lineInteractionId);
   }
 });

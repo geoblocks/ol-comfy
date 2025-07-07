@@ -1,36 +1,40 @@
 import OlInteractionModify, {
   type Options as ModifyOptions,
 } from 'ol/interaction/Modify.js';
-import OlMap from 'ol/Map.js';
+import type { InteractionGroup } from './interactionGroup.js';
+import { Interaction } from './Interaction.js';
 
 /**
  * Base class to manage OL Modify interactions.
  */
-export class Modify {
-  private readonly modifyInteraction: OlInteractionModify;
-
-  /**
-   * Add a new Modify Interaction in the map.
-   */
+export class Modify extends Interaction {
   constructor(
-    private map: OlMap,
+    interactionGroup: InteractionGroup,
+    interactionUid: string,
     options: ModifyOptions,
   ) {
-    this.modifyInteraction = new OlInteractionModify(options);
-    this.map.addInteraction(this.modifyInteraction);
-  }
-
-  /**
-   * Removes the interaction from the map.
-   */
-  destroy() {
-    this.map.removeInteraction(this.modifyInteraction);
+    super(interactionGroup, interactionUid);
+    this.createInteraction(options);
   }
 
   /**
    * @returns the interactions.
    */
-  getInteraction(): OlInteractionModify {
-    return this.modifyInteraction;
+  getInteraction(): OlInteractionModify | undefined {
+    return this.interactionGroup.find(this.interactionUid) as
+      | OlInteractionModify
+      | undefined;
+  }
+
+  /**
+   * Instantiate a new interaction.
+   * @private
+   */
+  private createInteraction(options: ModifyOptions) {
+    let interaction = this.interactionGroup.find(this.interactionUid);
+    if (!interaction) {
+      interaction = new OlInteractionModify(options);
+      this.interactionGroup.add(this.interactionUid, interaction);
+    }
   }
 }

@@ -1,8 +1,7 @@
 import has from 'lodash/has.js';
 import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
-import { LayerGroup, type LayerGroupOptions } from './layer-group.js';
-import { LayerUidKey } from './property-key.js';
+import { LayerGroup, type LayerGroupOptions, LayerUidKey } from './layer-group.js';
 import {
   createEmpty as olCreateEmptyExtent,
   extend as olExtend,
@@ -17,7 +16,7 @@ import OlCollection from 'ol/Collection.js';
 import OlSourceCluster from 'ol/source/Cluster.js';
 import { getFeaturesExtent } from '../feature/utils.js';
 
-export const DefaultOverlayLayerGroupName = 'olcOverlayLayerGroup';
+export const DefaultOverlayLayerGroupUid = 'olcOverlayLayerGroupUid';
 
 /**
  * Feature "affected" event definition.
@@ -58,7 +57,7 @@ export class OverlayLayerGroup extends LayerGroup {
   readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
-    const layerGroupUid = options[LayerUidKey] || DefaultOverlayLayerGroupName;
+    const layerGroupUid = options[LayerUidKey] || DefaultOverlayLayerGroupUid;
     super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);

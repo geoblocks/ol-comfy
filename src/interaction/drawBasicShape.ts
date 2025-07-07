@@ -1,28 +1,42 @@
 import OlInteractionDraw, { type Options } from 'ol/interaction/Draw.js';
-import OlMap from 'ol/Map.js';
 import OlSourceVector from 'ol/source/Vector.js';
 import { never } from 'ol/events/condition.js';
-import { Draw } from './draw.js';
 import type OlFeature from 'ol/Feature.js';
+import type { InteractionGroup } from './interactionGroup.js';
+import { Interaction } from './Interaction.js';
 
 /**
  * Manage "shape" drawing interaction on an OpenLayers map.
  */
-export class DrawBasicShape extends Draw {
-  constructor(map: OlMap, options: Options, uid: string) {
-    super(map, uid);
-    if (!this.interaction) {
-      this.createInteraction(uid, options);
+export class DrawBasicShape extends Interaction {
+  constructor(
+    interactionGroup: InteractionGroup,
+    interactionUid: string,
+    options: Options,
+  ) {
+    super(interactionGroup, interactionUid);
+    this.createInteraction(options);
+  }
+
+  /**
+   * Instantiate a new interaction.
+   * @private
+   */
+  private createInteraction(options: Options) {
+    let interaction = this.interactionGroup.find(this.interactionUid);
+    if (!interaction) {
+      interaction = new OlInteractionDraw(options);
+      this.interactionGroup.add(this.interactionUid, interaction);
     }
   }
 
   /**
-   * Instantiate a new draw interaction.
-   * @private
+   * @returns the interactions.
    */
-  private createInteraction(uid: string, options: Options) {
-    this.interaction = new OlInteractionDraw(options);
-    this.registerInteraction(this.interaction, uid);
+  getInteraction(): OlInteractionDraw | undefined {
+    return this.interactionGroup.find(this.interactionUid) as
+      | OlInteractionDraw
+      | undefined;
   }
 
   /**

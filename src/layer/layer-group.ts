@@ -9,7 +9,9 @@ import OlSourceSource from 'ol/source/Source.js';
 import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { isNil } from '../utils.js';
-import { LayerUidKey } from './property-key.js';
+
+/** Property key in a layer to identify the layer; expected matching value: string */
+export const LayerUidKey = 'olcLayerUid';
 
 /**
  * Options to create a layer group.
@@ -177,23 +179,6 @@ export class LayerGroup {
             layerGroup instanceof OlLayerGroup,
         ) as OlLayerGroup) || null
     );
-  }
-
-  /**
-   * @returns A unique observable name.
-   * @protected
-   */
-  protected getObservableName(observableName: string) {
-    const layerGroupUid = this.layerGroup.get(LayerUidKey);
-    return this.getObservableNameFromLayerUid(observableName, layerGroupUid);
-  }
-
-  /**
-   * @returns A unique observable name.
-   * @private
-   */
-  private getObservableNameFromLayerUid(observableName: string, layerGroupUid: string) {
-    return `${observableName}-${layerGroupUid}`;
   }
 
   /**
