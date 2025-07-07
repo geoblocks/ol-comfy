@@ -22,7 +22,6 @@ import { MapBrowserEvent } from 'ol';
 import { type EventsKey } from 'ol/events.js';
 import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
 import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
-import { EmptyStyle } from '../../src/map/utils.js';
 import OlCircle from 'ol/style/Circle.js';
 import OlFill from 'ol/style/Fill.js';
 import OlStroke from 'ol/style/Stroke.js';
@@ -30,6 +29,7 @@ import { unByKeyAll } from '../../src/event/utils.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
 import { platformModifierKeyOnly, click } from 'ol/events/condition.js';
+import { EmptyStyle } from '../../src/style.js';
 
 // Globally accessible values you need:
 const map = Map.createEmptyMap();

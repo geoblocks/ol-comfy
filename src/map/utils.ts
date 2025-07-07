@@ -1,10 +1,6 @@
 import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
-import OlStyle from 'ol/style/Style.js';
 import { isNil } from '../utils.js';
-
-/** Single instance of an ol empty style */
-export const EmptyStyle = new OlStyle();
 
 /**
  * @returns A projection distance from a number of pixels (from [0, 0] ->
