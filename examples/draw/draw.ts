@@ -152,7 +152,7 @@ const createStyle = (
   if (['MultiPoint', 'Point'].includes(`${type}`) && geometry) {
     // Get color from the geometry, could be linked to a feature property as
     // well (f.i. with a color picker that set feature's value).
-    const xCoordinate = (geometry as OlGeomPoint).getCoordinates()[0] || 0;
+    const xCoordinate = (geometry as OlGeomPoint).getCoordinates()[0] ?? 0;
     const color = Math.round((Math.abs(xCoordinate) / (20037508 / 2)) * 255);
     return new OlStyle({
       image: new OlCircle({

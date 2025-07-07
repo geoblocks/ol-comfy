@@ -13,7 +13,7 @@ export const insertAtKeepOrder = <T extends OlBaseObject>(
   object.set(orderKey, position);
   let nearestUpperIndex = objects
     .getArray()
-    .findIndex((obj) => (obj.get(orderKey) || 0) >= position);
+    .findIndex((obj) => (obj.get(orderKey) ?? 0) >= position);
   if (nearestUpperIndex < 0) {
     nearestUpperIndex = objects.getLength();
   }

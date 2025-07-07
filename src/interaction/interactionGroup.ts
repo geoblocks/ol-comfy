@@ -15,7 +15,7 @@ export class InteractionGroup {
 
   constructor(map: OlMap, groupUid?: string) {
     this.map = map;
-    this.groupUid = groupUid || DefaultGroupUid;
+    this.groupUid = groupUid ?? DefaultGroupUid;
   }
 
   /**
