@@ -16,6 +16,11 @@ describe('format', () => {
     expect(coordinatesToTemplate(xy, '{y}; {x}')).toEqual(`${xy[1]}; ${xy[0]}`);
     expect(coordinatesToTemplate([])).toEqual(` `);
     expect(coordinatesToTemplate([1.12])).toEqual(`1.12 `);
+    const xFormat = (val: number) => `+${val}`;
+    const yFormat = (val: number) => `~${val}`;
+    expect(coordinatesToTemplate(xy, '{y}; {x}', xFormat, yFormat)).toEqual(
+      `~${xy[1]}; +${xy[0]}`,
+    );
   });
 
   it('coordinateToDMS', () => {
@@ -31,7 +36,7 @@ describe('format', () => {
       '46° 43\' 17.7600" N / 7° 07\' 31.0800" E',
     );
     expect(coordinatesToDMSTemplate([])).toEqual(' ');
-    expect(coordinatesToDMSTemplate([xy[0]!])).toEqual('7° 07\' 31" E ');
+    expect(coordinatesToDMSTemplate([xy[0]!])).toEqual('7° 07\' 31"   ');
   });
 
   it('coordinatesToNumberTemplate', () => {
@@ -39,5 +44,6 @@ describe('format', () => {
     expect(coordinatesToNumberTemplate(xy, 1)).toEqual('7.1 46.7');
     expect(coordinatesToNumberTemplate([])).toEqual(' ');
     expect(coordinatesToNumberTemplate([xy[0]!])).toEqual('7 ');
+    expect(coordinatesToNumberTemplate([xy[1]!])).toEqual('47 ');
   });
 });
