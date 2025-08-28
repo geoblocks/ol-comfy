@@ -2,6 +2,11 @@
 
 List changes at major/minor level. Patches should be straightforward.
 
+# 1.2.0
+- Rework `coordinatesToTemplate` to take only number coordinates 
+  and format numbers to string with the provided functions (that's more flexible).
+- Fix single coordinate formatting for DMS format.
+
 ## 1.1.0
 - Rework interactions to have generic groups to manage interactions.
 - Add features in the event fired by the "setFeatureProperty" method. Add more flexibility.

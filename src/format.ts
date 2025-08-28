@@ -6,15 +6,21 @@ import { isNil } from './utils.js';
  * Format coordinates to a template string.
  * @param coordinates with [x, y] in degrees.
  * @param template a template string containing "{x}" and/or "{y}" to format the result.
+ * @param formatXFn a function to format the x coordinate into a string.
+ * @param formatYFn a function to format the y coordinate into a string.
  * @returns the formated coordinates.
  */
 export const coordinatesToTemplate = (
-  coordinates: (number | string)[],
+  coordinates: number[],
   template?: string,
+  formatXFn?: (x: number) => string,
+  formatYFn?: (y: number) => string,
 ): string => {
   template = template ?? '{x} {y}';
-  const xStr = coordinates[0] ? `${coordinates[0]}` : '';
-  const yStr = coordinates[1] ? `${coordinates[1]}` : '';
+  formatXFn = formatXFn ?? ((x) => x.toString());
+  formatYFn = formatYFn ?? ((y) => y.toString());
+  const xStr = isNil(coordinates[0]) ? '' : formatXFn(coordinates[0]!);
+  const yStr = isNil(coordinates[1]) ? '' : formatYFn(coordinates[1]!);
   return template.replace('{x}', xStr).replace('{y}', yStr);
 };
 
@@ -47,23 +53,24 @@ export const coordinateToDMS = (
  * @param coordinates with [x, y] in degrees.
  * @param fractionDigits the precision to keep on the seconds. Default to 0.
  * @param template a template string containing "{x}" and/or "{y}" to format the result.
- * @returns the formated coordinates.
+ * @returns the formated coordinates. Example: 46° 43' 18 N 7° 07' 24.23" E.
  */
 export const coordinatesToDMSTemplate = (
   coordinates: number[],
   fractionDigits?: number,
   template?: string,
 ): string => {
-  const x = coordinates[0];
-  const y = coordinates[1];
-  const coordinatesDMS = [];
-  if (!isNil(y)) {
-    coordinatesDMS.push(coordinateToDMS(y!, 'NS', fractionDigits ?? 0));
+  let formatXFn = (x: number) => coordinateToDMS(x, 'NS', fractionDigits ?? 0);
+  const formatYFn = (y: number) => coordinateToDMS(y, 'EW', fractionDigits ?? 0);
+  if (coordinates.length === 1) {
+    formatXFn = (x: number) => coordinateToDMS(x, '  ', fractionDigits ?? 0);
   }
-  if (!isNil(x)) {
-    coordinatesDMS.push(coordinateToDMS(x!, 'EW', fractionDigits ?? 0));
-  }
-  return coordinatesToTemplate(coordinatesDMS, template);
+  return coordinatesToTemplate(
+    [...coordinates].reverse(),
+    template,
+    formatXFn,
+    formatYFn,
+  );
 };
 
 /**
@@ -78,14 +85,7 @@ export const coordinatesToNumberTemplate = (
   fractionDigits?: number,
   template?: string,
 ) => {
-  const x = coordinates[0];
-  const y = coordinates[1];
-  const xy = [];
-  if (!isNil(x)) {
-    xy.push(x!.toFixed(fractionDigits ?? 0));
-  }
-  if (!isNil(y)) {
-    xy.push(y!.toFixed(fractionDigits ?? 0));
-  }
-  return coordinatesToTemplate(xy, template);
+  const formatXFn = (x: number) => x.toFixed(fractionDigits ?? 0);
+  const formatYFn = (y: number) => y.toFixed(fractionDigits ?? 0);
+  return coordinatesToTemplate(coordinates, template, formatXFn, formatYFn);
 };
