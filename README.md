@@ -37,7 +37,8 @@ The source is transpiled to standard ES modules and published on npm.
 
 ```bash
 # update CHANGES.md
-npm version patch
+npm run build
+npm version patch # Or minor, major
 npm publish
 git push --tags origin main
 npm run gh-pages
