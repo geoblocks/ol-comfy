@@ -15,6 +15,18 @@ describe('BackgroundLayerGroup', () => {
     baseLayer = new OlLayerBase({});
   });
 
+  it('should getFirstVisible', () => {
+    const secondLayer = new OlLayerBase({});
+    bgGroup.addLayer(baseLayer, 'firstLayer');
+    bgGroup.addLayer(secondLayer, 'secondLayer');
+    baseLayer.setVisible(true);
+    expect(bgGroup.getFirstVisible()).toBe(baseLayer);
+    secondLayer.setVisible(true);
+    expect(bgGroup.getFirstVisible()).toBe(baseLayer);
+    baseLayer.setVisible(false);
+    expect(bgGroup.getFirstVisible()).toBe(secondLayer);
+  });
+
   it('should toggleVisible', () =>
     new Promise((done) => {
       const secondLayer = new OlLayerBase({});

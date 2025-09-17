@@ -1,4 +1,5 @@
 import OlMap from 'ol/Map.js';
+import OlLayerBase from 'ol/layer/Base.js';
 import { LayerGroup, type LayerGroupOptions, LayerUidKey } from './layer-group.js';
 
 export const DefaultLayerBGGroupUid = 'olcBackgroundLayerGroupUid';
@@ -17,7 +18,19 @@ export class BackgroundLayerGroup extends LayerGroup {
   }
 
   /**
-   * Set one background layer as visible, all others as not visible
+   * @returns the first visible layer, or null if none is visible.
+   */
+  getFirstVisible(): OlLayerBase | null {
+    return (
+      this.layerGroup
+        .getLayers()
+        .getArray()
+        .find((layer) => layer.getVisible()) ?? null
+    );
+  }
+
+  /**
+   * Set one background layer as visible, all others as not visible.
    */
   toggleVisible(layerUid: string) {
     const layers = this.layerGroup.getLayers().getArray();
