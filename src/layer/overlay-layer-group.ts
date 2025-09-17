@@ -19,7 +19,7 @@ import { getFeaturesExtent } from '../feature/utils.js';
 export const DefaultOverlayLayerGroupUid = 'olcOverlayLayerGroupUid';
 
 /**
- * Feature "affected" event definition.
+ * Event definition for "affected" event of a feature in the layerGroup.
  */
 export interface FeatureAffected {
   [LayerUidKey]: string;
@@ -29,7 +29,7 @@ export interface FeatureAffected {
 }
 
 /**
- * Event definition for change in feature property.
+ * Event definition for property change in a feature of a layer in the layerGroup.
  */
 export interface FeaturePropertyChanged {
   [LayerUidKey]: string;
@@ -44,10 +44,11 @@ export interface FeaturePropertyChanged {
  */
 export class OverlayLayerGroup extends LayerGroup {
   /**
-   * To provide changed-like event, without touching the original features.
+   * To provide changed-like-event, without touching the original features.
    * With source layer uid, free reason why/by/for it's emitted, the affected features
    * and the not anymore affected features.
-   * Example: emit/listen to selected/deselected (as reason) features without touching the real features.
+   * Example: emit/listen to selected/deselected (as reason) features without touching
+   * the real features and having to listen to every layer individually.
    */
   readonly featuresAffected: Subject<FeatureAffected>;
   /**

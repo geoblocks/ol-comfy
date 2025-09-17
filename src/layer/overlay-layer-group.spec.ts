@@ -200,7 +200,7 @@ describe('OverlayLayerGroup', () => {
     });
   });
 
-  it('should emitAffectedFeatures', () =>
+  it('should emitFeaturesAffected', () =>
     new Promise((done) => {
       const layerUid = 'overlay';
       const features = [new OlFeature({ geometry: new OlGeomPoint([3000, -1000]) })];

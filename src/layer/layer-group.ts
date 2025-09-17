@@ -9,9 +9,26 @@ import OlSourceSource from 'ol/source/Source.js';
 import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { isNil } from '../utils.js';
+import { Subject } from 'rxjs';
 
 /** Property key in a layer to identify the layer; expected matching value: string */
 export const LayerUidKey = 'olcLayerUid';
+
+/**
+ * Event definition for "affected" event of a layer in the layerGroup.
+ */
+export interface LayerAffected {
+  [LayerUidKey]: string;
+  reason: string;
+}
+
+/**
+ * Event definition for property change in a layer of this layerGroup.
+ */
+export interface LayerPropertyChanged {
+  [LayerUidKey]: string;
+  propertyKey: string;
+}
 
 /**
  * Options to create a layer group.
@@ -34,9 +51,23 @@ export class LayerGroup {
   protected readonly map: OlMap;
   // @ts-expect-error this will be handled by the child classes
   protected layerGroup: OlLayerGroup;
+  /**
+   * To provide changed-like-event, without touching the original layer.
+   * With source layer uid and free reason why/by/for it's emitted.
+   * Example: emit/listen to silently set layer opacity (as reason) without touching the real
+   * layer and having to listen to every layer individually.
+   */
+  readonly layerAffected: Subject<LayerAffected>;
+  /**
+   * Event to observe layer property change in this LayerGroup without the need of having
+   * the layer itself.
+   */
+  readonly layerPropertyChanged: Subject<LayerPropertyChanged>;
 
   constructor(map: OlMap) {
     this.map = map;
+    this.layerAffected = new Subject<LayerAffected>();
+    this.layerPropertyChanged = new Subject<LayerPropertyChanged>();
   }
 
   /**
@@ -117,6 +148,27 @@ export class LayerGroup {
       .filter((layer) => layer.get('source'))
       .map((layer) => layer.get('source'))
       .filter((source) => !isNil(source));
+  }
+
+  /**
+   * Emit an "affected" layer event.
+   */
+  emitLayerAffected(layerUid: string, reason: string) {
+    this.layerAffected.next({
+      [LayerUidKey]: layerUid,
+      reason,
+    });
+  }
+
+  /**
+   * Emits a "LayerPropertyChanged" and call a "changed" event on the matching OL layer.
+   */
+  emitLayerPropertyChanged(layerUid: string, propertyKey: string) {
+    this.getLayer(layerUid)?.changed();
+    this.layerPropertyChanged.next({
+      [LayerUidKey]: layerUid,
+      propertyKey,
+    });
   }
 
   /**
