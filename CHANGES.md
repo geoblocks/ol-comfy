@@ -2,6 +2,11 @@
 
 List changes at major/minor level. Patches should be straightforward.
 
+# 1.3.0
+- Add getFirstVisible() in the background-layer-group class.
+- Add Generic layerAffected and layerPropertyChanged events on the layer-group class to
+  be able to listen to layer change without observing each layer itself.
+
 # 1.2.0
 - Rework `coordinatesToTemplate` to take only number coordinates 
   and format numbers to string with the provided functions (that's more flexible).
