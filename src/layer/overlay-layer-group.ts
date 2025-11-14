@@ -1,4 +1,3 @@
-import has from 'lodash/has.js';
 import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
 import { LayerGroup, type LayerGroupOptions, LayerUidKey } from './layer-group.js';
@@ -100,7 +99,7 @@ export class OverlayLayerGroup extends LayerGroup {
     const source = this.getVectorSource(layerUid);
     // Returns the vector source from a cluster source if it exists. And from
     // the vector source directly otherwise.
-    if (has(source, 'source')) {
+    if (source && Object.hasOwn(source, 'source')) {
       return (source as unknown as OlSourceCluster).getSource();
     }
     return source;
