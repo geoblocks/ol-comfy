@@ -21,10 +21,10 @@ export class Map {
    * the map.
    */
   hasControl(controlUid: string): boolean {
-    return !!this.map
+    return this.map
       .getControls()
       .getArray()
-      .find((control) => control.get(ControlUidKey) === controlUid);
+      .some((control) => control.get(ControlUidKey) === controlUid);
   }
 
   /**

@@ -37,9 +37,8 @@ export const coordinatesToTemplate = (
 export const coordinateToDMS = (
   degrees: number,
   hemispheres: string,
-  fractionDigits?: number,
+  fractionDigits = 0,
 ): string => {
-  fractionDigits = fractionDigits ?? 0;
   const normalizedDegrees = modulo(degrees + 180, 360) - 180;
   const dms = Math.abs(3600 * normalizedDegrees);
   const d = Math.floor(dms / 3600);
