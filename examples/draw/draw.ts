@@ -1,4 +1,3 @@
-import { overEvery } from 'lodash';
 import { Map } from '../../src/map/map.js';
 import OlView from 'ol/View.js';
 import OlLayerTile from 'ol/layer/Tile.js';
@@ -30,6 +29,7 @@ import OlGeomLine from 'ol/geom/LineString.js';
 import { platformModifierKeyOnly, click } from 'ol/events/condition.js';
 import { EmptyStyle } from '../../src/style.js';
 import { InteractionGroup } from '../../src/interaction/interactionGroup.js';
+import { overEvery } from '../../src/utils.js';
 
 // Globally accessible values you need:
 const map = Map.createEmptyMap();
@@ -112,10 +112,7 @@ const setupDrawing = () => {
   modify = new Modify(interactionGroupToModify, 'modify', {
     // Use loadash "overEvery", "overSome" and "negate" to chain conditions.
     deleteCondition: conditionThen(
-      overEvery(
-        click,
-        condition(() => listenKey!.isKeyDown()),
-      ),
+      overEvery([click, condition(() => listenKey!.isKeyDown())]),
       delayOnDeleteAction.bind(this),
     ),
     source,

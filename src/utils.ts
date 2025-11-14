@@ -14,3 +14,29 @@ export const isNil = (value: unknown): boolean => {
 export const uniq = <T>(values: T[]): T[] => {
   return Array.from(new Set(values));
 };
+
+/**
+ * Returns a function that returns true if all the provided functions return true when invoked with the arguments it receives.
+ */
+export const overEvery = <T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  functions: ((...args: any) => boolean)[],
+): ((...args: T[]) => boolean) => {
+  return (...args: T[]) =>
+    functions.every((func) => {
+      return func(...args);
+    });
+};
+
+/**
+ * Returns a function that returns true if at least one of the provided functions return true when invoked with the arguments it receives.
+ */
+export const overSome = <T>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  functions: ((...args: any) => boolean)[],
+): ((...args: T[]) => boolean) => {
+  return (...args: T[]) =>
+    functions.some((func) => {
+      return func(...args);
+    });
+};
