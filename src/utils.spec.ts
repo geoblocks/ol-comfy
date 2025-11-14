@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isNil } from './utils.js';
+import { isNil, uniq } from './utils.js';
 
 describe('utils', () => {
   describe('isNil', () => {
@@ -29,6 +29,25 @@ describe('utils', () => {
 
     it('should return false for a boolean', () => {
       expect(isNil(false)).toBe(false);
+    });
+  });
+
+  describe('array', () => {
+    it('Returns uniq', () => {
+      expect(uniq([0, 1, 2, 1, 2])).toEqual([0, 1, 2]);
+      expect(uniq(['0', '1', '2', '1', '2'])).toEqual(['0', '1', '2']);
+      expect(uniq([0, '1', '2', 1, '2', 1])).toEqual([0, '1', '2', 1]);
+      expect(uniq([0, true, 'false', null, undefined, false, [], 1, 'false'])).toEqual([
+        0,
+        true,
+        'false',
+        null,
+        undefined,
+        false,
+        [],
+        1,
+      ]);
+      expect(uniq(['a', ' a', 'a ', 'A'])).toEqual(['a', ' a', 'a ', 'A']);
     });
   });
 });

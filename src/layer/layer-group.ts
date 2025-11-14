@@ -1,4 +1,3 @@
-import uniq from 'lodash/uniq.js';
 import OlMap from 'ol/Map.js';
 import OlCollection from 'ol/Collection.js';
 import OlLayerGroup from 'ol/layer/Group.js';
@@ -7,7 +6,7 @@ import OlLayerLayer from 'ol/layer/Layer.js';
 import OlSourceSource from 'ol/source/Source.js';
 import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
-import { isNil } from '../utils.js';
+import { isNil, uniq } from '../utils.js';
 import { Subject } from 'rxjs';
 
 /** Property key in a layer to identify the layer; expected matching value: string */
@@ -117,15 +116,14 @@ export class LayerGroup {
    * @returns The attribution of all visible layers.
    */
   getAttributions(): string[] {
-    return uniq(
-      this.layerGroup
-        .getLayers()
-        .getArray()
-        .filter((layer) => layer.getVisible())
-        .flatMap((layer) =>
-          this.getAttributionFromLayer(layer as OlLayerLayer<OlSourceSource>),
-        ),
-    );
+    const attributions = this.layerGroup
+      .getLayers()
+      .getArray()
+      .filter((layer) => layer.getVisible())
+      .flatMap((layer) =>
+        this.getAttributionFromLayer(layer as OlLayerLayer<OlSourceSource>),
+      );
+    return uniq(attributions);
   }
 
   /**
