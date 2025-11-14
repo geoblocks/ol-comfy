@@ -127,14 +127,12 @@ const setupDrawing = () => {
   });
   // Custom listener for this component.
   eventKeys.push(
-    ...[
-      drawPoint.getInteraction()?.on('drawend', () => {
-        print(`Point added.`);
-      }),
-      drawLine.getInteraction()?.on('drawend', () => {
-        print(`Line added.`);
-      }),
-    ],
+    drawPoint.getInteraction()?.on('drawend', () => {
+      print(`Point added.`);
+    }),
+    drawLine.getInteraction()?.on('drawend', () => {
+      print(`Line added.`);
+    }),
   );
 };
 

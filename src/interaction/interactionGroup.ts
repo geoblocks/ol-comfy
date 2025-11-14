@@ -95,7 +95,7 @@ export class InteractionGroup {
    * @returns boolean indicating if the interaction is present
    */
   hasInteraction(uid: string): boolean {
-    return !!this.getGroupInteractions().find(
+    return this.getGroupInteractions().some(
       (interaction) => interaction.get(InteractionUidKey) === uid,
     );
   }
