@@ -1,4 +1,3 @@
-import flatten from 'lodash/flatten.js';
 import uniq from 'lodash/uniq.js';
 import OlMap from 'ol/Map.js';
 import OlCollection from 'ol/Collection.js';
@@ -119,15 +118,13 @@ export class LayerGroup {
    */
   getAttributions(): string[] {
     return uniq(
-      flatten(
-        this.layerGroup
-          .getLayers()
-          .getArray()
-          .filter((layer) => layer.getVisible())
-          .map((layer) =>
-            this.getAttributionFromLayer(layer as OlLayerLayer<OlSourceSource>),
-          ),
-      ),
+      this.layerGroup
+        .getLayers()
+        .getArray()
+        .filter((layer) => layer.getVisible())
+        .flatMap((layer) =>
+          this.getAttributionFromLayer(layer as OlLayerLayer<OlSourceSource>),
+        ),
     );
   }
 
