@@ -9,13 +9,11 @@
   ],
   "_peerDependenciesComment_": "Dependencies with open range version, to grant liberties on final usage.",
   "peerDependencies": {
-    "lodash": ">=4.17.21",
     "ol": ">=10.0.0",
     "rxjs": ">=7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@types/lodash": "^4.17.16",
     "@vitest/coverage-v8": "^3.2.4",
     "core-js": "^3.40.0",
     "eslint": "^9.0.0",

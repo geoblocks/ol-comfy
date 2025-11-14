@@ -110,7 +110,7 @@ const setupDrawing = () => {
   drawLine = new DrawBasicShape(interactionGroupToDraw, lineInteractionId, lineOptions);
   // Set up the "modify" and "translate" drawing interactions. Delete with delete+click.
   modify = new Modify(interactionGroupToModify, 'modify', {
-    // Use loadash "overEvery", "overSome" and "negate" to chain conditions.
+    // Use "overEvery" or "overSome" or a custom function to chain conditions.
     deleteCondition: conditionThen(
       overEvery([click, condition(() => listenKey!.isKeyDown())]),
       delayOnDeleteAction.bind(this),
