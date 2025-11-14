@@ -1,4 +1,3 @@
-import uniq from 'lodash/uniq.js';
 import OlFeature from 'ol/Feature.js';
 import { Geometry as OlGeometry } from 'ol/geom.js';
 import OlGeomPoint from 'ol/geom/Point.js';
@@ -11,6 +10,7 @@ import {
   isEmpty as olIsEmpty,
   type Extent as OlExtent,
 } from 'ol/extent.js';
+import { uniq } from '../utils.js';
 
 /**
  * @param features the features to get the "properties" values from.

@@ -2,6 +2,9 @@
 
 List changes at major/minor level. Patches should be straightforward.
 
+# 1.4.0
+- Remove lodash.
+
 # 1.3.0
 - Add getFirstVisible() in the background-layer-group class.
 - Add Generic layerAffected and layerPropertyChanged events on the layer-group class to
