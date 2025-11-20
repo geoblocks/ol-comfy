@@ -9,13 +9,13 @@ import { OSM } from 'ol/source.js';
 import OlGeometry from 'ol/geom/Geometry.js';
 import RenderFeature from 'ol/render/Feature.js';
 import OlStyle from 'ol/style/Style.js';
+import OlInteractionDraw from 'ol/interaction/Draw.js';
+import OlInteractionTranslate from 'ol/interaction/Translate.js';
+import OlInteractionModify from 'ol/interaction/Modify.js';
+import OlInteractionSnap from 'ol/interaction/Snap.js';
 import { condition, conditionThen } from '../../src/event/condition.js';
 import { ListenKey } from '../../src/event/listen-key.js';
 import { updateLayerStyle } from '../../src/layer/utils.js';
-import { DrawBasicShape } from '../../src/interaction/drawBasicShape.js';
-import { Modify } from '../../src/interaction/modify.js';
-import { Translate } from '../../src/interaction/translate.js';
-import { Snap } from '../../src/interaction/snap.js';
 import { MapBrowserEvent } from 'ol';
 import { type EventsKey } from 'ol/events.js';
 import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
@@ -37,6 +37,7 @@ const layer1Id = 'layer1-id';
 const backgroundLayer1Id = 'background1-id';
 const pointInteractionId = 'point-interaction-uid';
 const lineInteractionId = 'line-interaction-uid';
+const modifyInteractionId = 'modify-interaction-uid';
 
 // Setup example.
 const layer1 = new OlLayerVector({
@@ -66,13 +67,15 @@ let overlayLayerGroup = new OverlayLayerGroup(map);
 overlayLayerGroup.addLayer(layer1, layer1Id);
 const backgroundLayerGroup = new BackgroundLayerGroup(map);
 backgroundLayerGroup.addLayer(backgroundLayer1, backgroundLayer1Id);
-const interactionGroupToModify = new InteractionGroup(map, 'modify');
-const interactionGroupToDraw = new InteractionGroup(map, 'draw');
+const interactionGroupToModify = new InteractionGroup(map, 'modifyGroup');
+const interactionGroupToDraw = new InteractionGroup(map, 'drawGroup');
 
 // A component wanting to enable draw.
-let drawPoint: DrawBasicShape | undefined;
-let drawLine: DrawBasicShape | undefined;
-let modify: Modify | undefined;
+let drawPoint: OlInteractionDraw | undefined;
+let drawLine: OlInteractionDraw | undefined;
+let modify: OlInteractionModify | undefined;
+let translate: OlInteractionTranslate | undefined;
+let snap: OlInteractionSnap | undefined;
 let listenKey: ListenKey | undefined;
 const eventKeys: EventsKey[] = [];
 
@@ -96,41 +99,47 @@ const setupDrawing = () => {
   // Set up listening of the "delete" key;
   listenKey = new ListenKey('Delete');
   // Setup drawing.
-  const pointOptions = DrawBasicShape.getDefaultPointOptions(source);
-  pointOptions.style = createStyle;
-  pointOptions.condition = () => !listenKey?.isKeyDown();
-  drawPoint = new DrawBasicShape(
-    interactionGroupToDraw,
-    pointInteractionId,
-    pointOptions,
-  );
-  const lineOptions = DrawBasicShape.getDefaultLineOptions(source);
-  lineOptions.style = createStyle;
-  lineOptions.condition = () => !listenKey?.isKeyDown();
-  drawLine = new DrawBasicShape(interactionGroupToDraw, lineInteractionId, lineOptions);
+  drawPoint = new OlInteractionDraw({
+    source,
+    type: 'Point',
+    condition: () => !listenKey?.isKeyDown(),
+    style: createStyle,
+  });
+  interactionGroupToDraw.add(pointInteractionId, drawPoint);
+  drawLine = new OlInteractionDraw({
+    source,
+    type: 'LineString',
+    condition: () => !listenKey?.isKeyDown(),
+    style: createStyle,
+  });
+  interactionGroupToDraw.add(lineInteractionId, drawLine);
   // Set up the "modify" and "translate" drawing interactions. Delete with delete+click.
-  modify = new Modify(interactionGroupToModify, 'modify', {
+  modify = new OlInteractionModify({
+    source,
+    style: createStyle,
     // Use "overEvery" or "overSome" or a custom function to chain conditions.
     deleteCondition: conditionThen(
       overEvery([click, condition(() => listenKey!.isKeyDown())]),
       delayOnDeleteAction.bind(this),
     ),
-    source,
-    style: createStyle,
   });
-  new Translate(interactionGroupToModify, 'translate', {
+  interactionGroupToModify.add(modifyInteractionId, modify);
+  translate = new OlInteractionTranslate({
     layers: [drawLayer],
     condition: platformModifierKeyOnly,
   });
-  new Snap(interactionGroupToModify, 'snap', {
+  interactionGroupToModify.add('translate', translate);
+  snap = new OlInteractionSnap({
     source,
   });
+  interactionGroupToModify.add('snap', snap);
   // Custom listener for this component.
+  // Case where we can't directly reach the drawPoint or drawLine instance.
   eventKeys.push(
-    drawPoint.getInteraction()?.on('drawend', () => {
+    interactionGroupToDraw.find(pointInteractionId)?.on('drawend', () => {
       print(`Point added.`);
     }),
-    drawLine.getInteraction()?.on('drawend', () => {
+    interactionGroupToDraw.find(lineInteractionId)?.on('drawend', () => {
       print(`Line added.`);
     }),
   );
@@ -207,8 +216,9 @@ const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
       if (features.includes(feature)) {
         overlayLayerGroup.removeFeatures(layer1Id, [feature]);
         // Make the pointer to be updated in Firefox;
-        modify?.getInteraction()?.setActive(false);
-        modify?.getInteraction()?.setActive(true);
+        const modify = interactionGroupToModify.find(modifyInteractionId);
+        modify?.setActive(false);
+        modify?.setActive(true);
       }
     },
   );
