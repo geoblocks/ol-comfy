@@ -58,7 +58,7 @@ export class OverlayLayerGroup extends LayerGroup {
   readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
-    const layerGroupUid = options[olcUidKey] ?? DefaultOverlayLayerGroupUid;
+    const layerGroupUid = options.groupUid ?? DefaultOverlayLayerGroupUid;
     super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);

@@ -1,5 +1,4 @@
 import OlFeature from 'ol/Feature.js';
-import { Geometry as OlGeometry } from 'ol/geom.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
 import OlGeomPolygon from 'ol/geom/Polygon.js';
@@ -18,7 +17,7 @@ import { uniq } from '../utils.js';
  * @returns Distinct values of features for a given property's key.
  */
 export const getDistinctFeaturesProperties = (
-  features: OlFeature<OlGeometry>[],
+  features: OlFeature[],
   propertyKey: string,
 ): unknown[] => {
   return uniq(
@@ -74,7 +73,7 @@ export const getCenterOfArea = (geometry: OlGeomPolygon | OlGeomCircle): OlGeomP
 /**
  * @returns The extent (not empty) of all given features.
  */
-export const getFeaturesExtent = (features: OlFeature<OlGeometry>[]): OlExtent | null => {
+export const getFeaturesExtent = (features: OlFeature[]): OlExtent | null => {
   const extent =
     features.reduce(
       (currentExtent, feature) =>
