@@ -36,7 +36,7 @@ export interface LayerGroupOptions {
    */
   position?: number;
   /** Unique ID for the layer group. */
-  [olcUidKey]?: string;
+  groupUid?: string;
 }
 
 /**
