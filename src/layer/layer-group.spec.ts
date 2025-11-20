@@ -63,6 +63,23 @@ describe('LayersStore', () => {
     expect(layerGroup.getAllSources().length).toEqual(1);
   });
 
+  it('should setLayerProperty', () =>
+    new Promise((done) => {
+      const layerUid = 'my-layer';
+      const propKey = 'test';
+      layerGroup.layerPropertyChanged.subscribe((evt) => {
+        expect(evt[LayerUidKey]).toBe(layerUid);
+        expect(evt.propertyKey).toEqual(propKey);
+        expect(layerGroup.getLayer(layerUid)?.get(propKey)).toEqual('success');
+        done('Done');
+      });
+      baseLayer.set(propKey, 'init');
+      layerGroup.setLayerProperty(layerUid, propKey, 'no-layer');
+      expect(baseLayer.get(propKey)).toEqual('init');
+      layerGroup.addLayer(baseLayer, layerUid);
+      layerGroup.setLayerProperty(layerUid, propKey, 'success');
+    }));
+
   it('should emitLayerAffected', () =>
     new Promise((done) => {
       const layerUid = 'my-layer';
@@ -73,19 +90,6 @@ describe('LayersStore', () => {
         done('Done');
       });
       layerGroup.emitLayerAffected(layerUid, reason);
-    }));
-
-  it('should emitLayerPropertyChanged', () =>
-    new Promise((done) => {
-      const layerUid = 'my-layer';
-      const property = 'visible';
-      layerGroup.layerPropertyChanged.subscribe((evt) => {
-        expect(evt[LayerUidKey]).toBe(layerUid);
-        expect(evt.propertyKey).toBe(property);
-        done('Done');
-      });
-      // In a real use case, we set the visibility of the layer here.
-      layerGroup.emitLayerPropertyChanged(layerUid, property);
     }));
 
   it('should getAttributions', () => {
