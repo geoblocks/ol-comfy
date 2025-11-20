@@ -4,10 +4,11 @@ import BaseLayer from 'ol/layer/Base.js';
 import OlLayerLayer from 'ol/layer/Layer.js';
 import OlSourceSource from 'ol/source/Source.js';
 import { Map } from '../map/map.js';
-import { LayerGroup, LayerUidKey } from './layer-group.js';
+import { LayerGroup } from './layer-group.js';
 import { getLayerGroup } from '../test/test-data.js';
 import { BackgroundLayerGroup } from './background-layer-group.js';
 import { CollectionEvent } from 'ol/Collection.js';
+import { olcUidKey } from '../uid.js';
 
 describe('LayersStore', () => {
   let layerGroup: LayerGroup;
@@ -68,7 +69,7 @@ describe('LayersStore', () => {
       const layerUid = 'my-layer';
       const propKey = 'test';
       layerGroup.layerPropertyChanged.subscribe((evt) => {
-        expect(evt[LayerUidKey]).toBe(layerUid);
+        expect(evt[olcUidKey]).toBe(layerUid);
         expect(evt.propertyKey).toEqual(propKey);
         expect(layerGroup.getLayer(layerUid)?.get(propKey)).toEqual('success');
         done('Done');
@@ -85,7 +86,7 @@ describe('LayersStore', () => {
       const layerUid = 'my-layer';
       const reason = 'targeted';
       layerGroup.layerAffected.subscribe((evt) => {
-        expect(evt[LayerUidKey]).toBe(layerUid);
+        expect(evt[olcUidKey]).toBe(layerUid);
         expect(evt.reason).toBe(reason);
         done('Done');
       });

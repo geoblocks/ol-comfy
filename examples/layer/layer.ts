@@ -9,7 +9,7 @@ import { OSM } from 'ol/source.js';
 import { Map } from '../../src/map/map.js';
 import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
 import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
-import { LayerUidKey } from '../../src/layer/layer-group.js';
+import { olcUidKey } from '../../src/uid.js';
 
 // Globally accessible values you need:
 const layer1Id = 'layer1-id';
@@ -51,7 +51,7 @@ backgroundLayerGroup.addLayer(backgroundLayer1, backgroundLayer1Id);
 
 // A component wanting to know changes on features for a specific layer.
 overlayLayerGroup.featuresPropertyChanged.subscribe((featurePropertyChanged) => {
-  const layer = featurePropertyChanged[LayerUidKey];
+  const layer = featurePropertyChanged[olcUidKey];
   const key = featurePropertyChanged.propertyKey;
   print(`Changed "${key}" in all features of layer "${layer}"`);
 });

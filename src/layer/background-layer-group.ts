@@ -1,6 +1,7 @@
 import OlMap from 'ol/Map.js';
 import OlLayerBase from 'ol/layer/Base.js';
-import { LayerGroup, type LayerGroupOptions, LayerUidKey } from './layer-group.js';
+import { LayerGroup, type LayerGroupOptions } from './layer-group.js';
+import { getOlcUid, olcUidKey } from '../uid.js';
 
 export const DefaultLayerBGGroupUid = 'olcBackgroundLayerGroupUid';
 
@@ -11,7 +12,7 @@ export const DefaultLayerBGGroupUid = 'olcBackgroundLayerGroupUid';
  */
 export class BackgroundLayerGroup extends LayerGroup {
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
-    const layerGroupUid = options[LayerUidKey] ?? DefaultLayerBGGroupUid;
+    const layerGroupUid = options[olcUidKey] ?? DefaultLayerBGGroupUid;
     super(map);
     const position = options.position ?? 0;
     this.addLayerGroup(layerGroupUid, position);
@@ -34,7 +35,7 @@ export class BackgroundLayerGroup extends LayerGroup {
    */
   toggleVisible(layerUid: string) {
     const layers = this.layerGroup.getLayers().getArray();
-    const foundLayer = layers.find((layer) => layer.get(LayerUidKey) === layerUid);
+    const foundLayer = layers.find((layer) => getOlcUid(layer) === layerUid);
     layers.forEach((layer) => {
       layer.setVisible(layer === foundLayer);
     });

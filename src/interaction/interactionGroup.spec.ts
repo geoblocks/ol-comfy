@@ -1,13 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
-import {
-  DefaultGroupUid,
-  InteractionGroup,
-  InteractionGroupUidKey,
-} from './interactionGroup.js';
+import { DefaultGroupUid, InteractionGroup } from './interactionGroup.js';
 import Draw from 'ol/interaction/Draw.js';
 import VectorSource from 'ol/source/Vector.js';
+import { getOlcVirtualGroupUid } from '../uid.js';
 
 describe('Interaction', () => {
   let map: Map;
@@ -25,7 +22,7 @@ describe('Interaction', () => {
     interactionGroup.add(drawInteractionUid, drawInteraction);
     const group = interactionGroup.getGroupInteractions();
     expect(group.length).toEqual(1);
-    expect(group[0]!.get(InteractionGroupUidKey)).toBe(DefaultGroupUid);
+    expect(getOlcVirtualGroupUid(group[0]!)).toBe(DefaultGroupUid);
     // With a second group:
     const group2Uid = 'group2';
     const interactionGroup2 = new InteractionGroup(map, group2Uid);
@@ -34,7 +31,7 @@ describe('Interaction', () => {
     const group2 = interactionGroup2.getGroupInteractions();
     expect(group.length).toEqual(1); // still 1
     expect(group2.length).toEqual(1);
-    expect(group2[0]!.get(InteractionGroupUidKey)).toBe(group2Uid);
+    expect(getOlcVirtualGroupUid(group2[0]!)).toBe(group2Uid);
   });
 
   it('should add an interaction to the map', () => {

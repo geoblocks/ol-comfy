@@ -8,15 +8,13 @@ import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { isNil, uniq } from '../utils.js';
 import { Subject } from 'rxjs';
-
-/** Property key in a layer to identify the layer; expected matching value: string */
-export const LayerUidKey = 'olcLayerUid';
+import { getOlcUid, olcUidKey } from '../uid.js';
 
 /**
  * Event definition for "affected" event of a layer in the layerGroup.
  */
 export interface LayerAffected {
-  [LayerUidKey]: string;
+  [olcUidKey]: string;
   reason: string;
 }
 
@@ -24,7 +22,7 @@ export interface LayerAffected {
  * Event definition for property change in a layer of this layerGroup.
  */
 export interface LayerPropertyChanged {
-  [LayerUidKey]: string;
+  [olcUidKey]: string;
   propertyKey: string;
 }
 
@@ -38,7 +36,7 @@ export interface LayerGroupOptions {
    */
   position?: number;
   /** Unique ID for the layer group. */
-  [LayerUidKey]?: string;
+  [olcUidKey]?: string;
 }
 
 /**
@@ -108,7 +106,7 @@ export class LayerGroup {
       this.layerGroup
         .getLayers()
         .getArray()
-        .find((layer) => layer.get(LayerUidKey) === layerUid) || null
+        .find((layer) => getOlcUid(layer) === layerUid) || null
     );
   }
 
@@ -162,7 +160,7 @@ export class LayerGroup {
    */
   emitLayerAffected(layerUid: string, reason: string) {
     this.layerAffected.next({
-      [LayerUidKey]: layerUid,
+      [olcUidKey]: layerUid,
       reason,
     });
   }
@@ -173,7 +171,7 @@ export class LayerGroup {
   emitLayerPropertyChanged(layerUid: string, propertyKey: string) {
     this.getLayer(layerUid)?.changed();
     this.layerPropertyChanged.next({
-      [LayerUidKey]: layerUid,
+      [olcUidKey]: layerUid,
       propertyKey,
     });
   }
@@ -196,7 +194,7 @@ export class LayerGroup {
     if (this.getLayer(layerUid)) {
       return false;
     }
-    layer.set(LayerUidKey, layerUid);
+    layer.set(olcUidKey, layerUid);
     return true;
   }
 
@@ -213,7 +211,7 @@ export class LayerGroup {
     }
     this.layerGroup = new OlLayerGroup({
       properties: {
-        [LayerUidKey]: layerGroupUid,
+        [olcUidKey]: layerGroupUid,
       },
     });
     insertAtKeepOrder(
@@ -234,8 +232,7 @@ export class LayerGroup {
         .getArray()
         .find(
           (layerGroup) =>
-            layerGroup.get(LayerUidKey) === layerUid &&
-            layerGroup instanceof OlLayerGroup,
+            layerGroup.get(olcUidKey) === layerUid && layerGroup instanceof OlLayerGroup,
         ) as OlLayerGroup) || null
     );
   }
