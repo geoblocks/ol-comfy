@@ -1,4 +1,3 @@
-import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
 import { LayerGroup, type LayerGroupOptions, LayerUidKey } from './layer-group.js';
 import {
@@ -14,26 +13,54 @@ import { Geometry as OlGeometry } from 'ol/geom.js';
 import OlCollection from 'ol/Collection.js';
 import OlSourceCluster from 'ol/source/Cluster.js';
 import { getFeaturesExtent } from '../feature/utils.js';
+import BaseEvent from 'ol/events/Event.js';
 
 export const DefaultOverlayLayerGroupUid = 'olcOverlayLayerGroupUid';
 
 /**
- * Event definition for "affected" event of a feature in the layerGroup.
+ * To provide changed-like-event, without touching the original features.
+ * With source layer uid, free reason why/by/for it's fired, the affected features
+ * and the not anymore affected features.
+ * Example: fire/listen to selected/deselected (as reason) features without touching
+ * the real features and having to listen to every layer individually.
  */
-export interface FeatureAffected {
-  [LayerUidKey]: string;
-  reason: string;
-  affected: OlFeature[];
-  noMoreAffected?: OlFeature[];
+export class FeatureAffectedEvent extends BaseEvent {
+  static readonly type = 'olcFeatureAffected';
+  readonly [LayerUidKey]: string;
+  readonly reason: string;
+  readonly affected: OlFeature[];
+  readonly noMoreAffected?: OlFeature[];
+
+  constructor(
+    layerUid: string,
+    reason: string,
+    affected: OlFeature[],
+    noMoreAffected?: OlFeature[],
+  ) {
+    super(FeatureAffectedEvent.type);
+    this[LayerUidKey] = layerUid;
+    this.reason = reason;
+    this.affected = affected;
+    this.noMoreAffected = noMoreAffected;
+  }
 }
 
 /**
- * Event definition for property change in a feature of a layer in the layerGroup.
+ * An event to listen on feature property changes in layers of this group and without the need of having
+ * the feature itself.
  */
-export interface FeaturePropertyChanged {
-  [LayerUidKey]: string;
-  propertyKey: string;
-  features: OlFeature[];
+export class FeaturePropertyChangedEvent extends BaseEvent {
+  static readonly type = 'olcFeaturePropertyChanged';
+  readonly [LayerUidKey]: string;
+  readonly propertyKey: string;
+  readonly features: OlFeature[];
+
+  constructor(layerUid: string, propertyKey: string, features: OlFeature[]) {
+    super(FeaturePropertyChangedEvent.type);
+    this[LayerUidKey] = layerUid;
+    this.propertyKey = propertyKey;
+    this.features = features;
+  }
 }
 
 /**
@@ -42,27 +69,11 @@ export interface FeaturePropertyChanged {
  * The default position is 20.
  */
 export class OverlayLayerGroup extends LayerGroup {
-  /**
-   * To provide changed-like-event, without touching the original features.
-   * With source layer uid, free reason why/by/for it's emitted, the affected features
-   * and the not anymore affected features.
-   * Example: emit/listen to selected/deselected (as reason) features without touching
-   * the real features and having to listen to every layer individually.
-   */
-  readonly featuresAffected: Subject<FeatureAffected>;
-  /**
-   * Event to observe feature property change in layers of this group and without the need of having
-   * the feature itself.
-   */
-  readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
-
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
-    const layerGroupUid = options[LayerUidKey] ?? DefaultOverlayLayerGroupUid;
     super(map);
+    const layerGroupUid = options[LayerUidKey] ?? DefaultOverlayLayerGroupUid;
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
-    this.featuresAffected = new Subject<FeatureAffected>();
-    this.featuresPropertyChanged = new Subject<FeaturePropertyChanged>();
   }
 
   /**
@@ -193,27 +204,26 @@ export class OverlayLayerGroup extends LayerGroup {
   }
 
   /**
-   * Emit an "affected" feature event.
+   * Fires an "affected" feature event.
    */
-  emitFeaturesAffected(
+  notifyFeaturesAffected(
     layerUid: string,
     reason: string,
     affected: OlFeature<OlGeometry>[],
     noMoreAffected?: OlFeature<OlGeometry>[],
   ) {
-    this.featuresAffected.next({
-      [LayerUidKey]: layerUid,
-      reason,
-      affected,
-      noMoreAffected,
-    });
+    if (this.hasListener(FeatureAffectedEvent.type)) {
+      this.dispatchEvent(
+        new FeatureAffectedEvent(layerUid, reason, affected, noMoreAffected),
+      );
+    }
   }
 
   /**
    * Set a property of every given feature with the same value.
    * If you want to set different values, set the feature manually (with silent=true), then call
-   * emitFeaturePropertyChange to redraw the ol layer and emit a featuresPropertyChanged event.
-   * Or call featuresPropertyChanged manually if necessary.
+   * notifyFeaturePropertyChanged to redraw the ol layer and fires a featuresPropertyChanged event.
+   * Or call notifyFeaturePropertyChanged manually if necessary.
    */
   setFeaturesProperty(
     layerUid: string,
@@ -224,23 +234,23 @@ export class OverlayLayerGroup extends LayerGroup {
     features.forEach((feature) => {
       feature.set(propertyKey, value, true);
     });
-    this.emitFeaturePropertyChanged(layerUid, features, propertyKey);
+    this.notifyFeaturePropertyChanged(layerUid, features, propertyKey);
   }
 
   /**
-   * Emits a "featuresPropertyChanged" and call a "changed" event on the matching OL layer.
+   * Fires a "featuresPropertyChanged" and call a "changed" event with the matching OL layer.
    */
-  emitFeaturePropertyChanged(
+  notifyFeaturePropertyChanged(
     layerUid: string,
     features: OlFeature[],
     propertyKey: string,
   ) {
     this.getLayer(layerUid)?.changed();
-    this.featuresPropertyChanged.next({
-      [LayerUidKey]: layerUid,
-      propertyKey,
-      features,
-    });
+    if (this.hasListener(FeaturePropertyChangedEvent.type)) {
+      this.dispatchEvent(
+        new FeaturePropertyChangedEvent(layerUid, propertyKey, features),
+      );
+    }
   }
 
   /**

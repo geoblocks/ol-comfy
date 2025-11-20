@@ -4,7 +4,12 @@ import BaseLayer from 'ol/layer/Base.js';
 import OlLayerLayer from 'ol/layer/Layer.js';
 import OlSourceSource from 'ol/source/Source.js';
 import { Map } from '../map/map.js';
-import { LayerGroup, LayerUidKey } from './layer-group.js';
+import {
+  LayerAffectedEvent,
+  LayerGroup,
+  LayerPropertyChangedEvent,
+  LayerUidKey,
+} from './layer-group.js';
 import { getLayerGroup } from '../test/test-data.js';
 import { BackgroundLayerGroup } from './background-layer-group.js';
 import { CollectionEvent } from 'ol/Collection.js';
@@ -67,25 +72,29 @@ describe('LayersStore', () => {
     new Promise((done) => {
       const layerUid = 'my-layer';
       const reason = 'targeted';
-      layerGroup.layerAffected.subscribe((evt) => {
+      layerGroup.once(LayerAffectedEvent.type, (evt: LayerAffectedEvent) => {
         expect(evt[LayerUidKey]).toBe(layerUid);
         expect(evt.reason).toBe(reason);
         done('Done');
       });
-      layerGroup.emitLayerAffected(layerUid, reason);
+      layerGroup.notifyLayerAffected(layerUid, reason);
     }));
 
   it('should emitLayerPropertyChanged', () =>
     new Promise((done) => {
       const layerUid = 'my-layer';
       const property = 'visible';
-      layerGroup.layerPropertyChanged.subscribe((evt) => {
-        expect(evt[LayerUidKey]).toBe(layerUid);
-        expect(evt.propertyKey).toBe(property);
-        done('Done');
-      });
+      const toto = layerGroup.on(
+        LayerPropertyChangedEvent.type,
+        (evt: LayerPropertyChangedEvent) => {
+          expect(evt[LayerUidKey]).toBe(layerUid);
+          expect(evt.propertyKey).toBe(property);
+          done('Done');
+        },
+      );
+      expect(toto).toEqual(null);
       // In a real use case, we set the visibility of the layer here.
-      layerGroup.emitLayerPropertyChanged(layerUid, property);
+      layerGroup.notifyLayerPropertyChanged(layerUid, property);
     }));
 
   it('should getAttributions', () => {
