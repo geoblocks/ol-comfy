@@ -4,6 +4,7 @@ List changes at major/minor level. Patches should be straightforward.
 
 # 1.4.0
 - Remove lodash.
+- Add setLayerProperty method in LayerGroup
 
 # 1.3.0
 - Add getFirstVisible() in the background-layer-group class.

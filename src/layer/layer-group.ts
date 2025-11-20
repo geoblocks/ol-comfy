@@ -146,6 +146,18 @@ export class LayerGroup {
   }
 
   /**
+   * Set a property of a layer and emit a "LayerPropertyChanged" event if the value has changed.
+   */
+  setLayerProperty(layerUid: string, propertyKey: string, value: unknown) {
+    const layer = this.getLayer(layerUid);
+    if (!layer || layer?.get(propertyKey) === value) {
+      return;
+    }
+    layer.set(propertyKey, value);
+    this.emitLayerPropertyChanged(layerUid, propertyKey);
+  }
+
+  /**
    * Emit an "affected" layer event.
    */
   emitLayerAffected(layerUid: string, reason: string) {
