@@ -5,6 +5,8 @@ List changes at major/minor level. Patches should be straightforward.
 # 1.4.0
 - Remove lodash.
 - Add setLayerProperty method in LayerGroup
+- Remove nearly useless interaction classes.
+- Add draw box interaction and related example.
 
 # 1.3.0
 - Add getFirstVisible() in the background-layer-group class.
