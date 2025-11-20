@@ -8,7 +8,7 @@ import OlSourceCluster from 'ol/source/Cluster.js';
 import OlCollection from 'ol/Collection.js';
 import { OverlayLayerGroup } from './overlay-layer-group.js';
 import { Map } from '../map/map.js';
-import { LayerUidKey } from './layer-group.js';
+import { olcUidKey } from '../uid.js';
 
 describe('OverlayLayerGroup', () => {
   let overlayLayerGroup: OverlayLayerGroup;
@@ -205,7 +205,7 @@ describe('OverlayLayerGroup', () => {
       const layerUid = 'overlay';
       const features = [new OlFeature({ geometry: new OlGeomPoint([3000, -1000]) })];
       overlayLayerGroup.featuresAffected.subscribe((evt) => {
-        expect(evt[LayerUidKey]).toBe(layerUid);
+        expect(evt[olcUidKey]).toBe(layerUid);
         expect(evt.affected.length).toEqual(0);
         expect(evt.noMoreAffected).toBe(features);
         done('Done');
@@ -239,7 +239,7 @@ describe('OverlayLayerGroup', () => {
       const propertyKey = 'foo';
       const propertyValue = 'bar';
       overlayLayerGroup.featuresPropertyChanged.subscribe((evt) => {
-        expect(evt[LayerUidKey]).toBe(layerUid);
+        expect(evt[olcUidKey]).toBe(layerUid);
         expect(evt.propertyKey).toBe('foo');
         expect(evt.features).toEqual(features);
         done('Done');

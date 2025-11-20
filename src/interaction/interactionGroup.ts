@@ -1,8 +1,12 @@
 import type OlInteraction from 'ol/interaction/Interaction.js';
 import OlMap from 'ol/Map.js';
+import {
+  getOlcUid,
+  getOlcVirtualGroupUid,
+  olcUidKey,
+  olcVirtualGroupUidKey,
+} from '../uid.js';
 
-export const InteractionUidKey = 'interactionUid';
-export const InteractionGroupUidKey = 'interactionGroupUId';
 export const DefaultGroupUid = 'olcInteractionGroup';
 
 /**
@@ -11,11 +15,11 @@ export const DefaultGroupUid = 'olcInteractionGroup';
  */
 export class InteractionGroup {
   protected readonly map: OlMap;
-  protected groupUid: string;
+  protected virtualGroupUid: string;
 
-  constructor(map: OlMap, groupUid?: string) {
+  constructor(map: OlMap, virtualGroupUid?: string) {
     this.map = map;
-    this.groupUid = groupUid ?? DefaultGroupUid;
+    this.virtualGroupUid = virtualGroupUid ?? DefaultGroupUid;
   }
 
   /**
@@ -25,7 +29,9 @@ export class InteractionGroup {
     return this.map
       .getInteractions()
       .getArray()
-      .filter((interaction) => interaction.get(InteractionGroupUidKey) === this.groupUid);
+      .filter(
+        (interaction) => getOlcVirtualGroupUid(interaction) === this.virtualGroupUid,
+      );
   }
 
   /**
@@ -37,19 +43,19 @@ export class InteractionGroup {
   add(uid: string, interaction: OlInteraction): void {
     if (this.hasInteraction(uid)) {
       console.warn(
-        `Interaction with uid "${uid}" already exists in group "${this.groupUid}"`,
+        `Interaction with uid "${uid}" already exists in group "${this.virtualGroupUid}"`,
       );
       return;
     }
-    const interactionGroupUid = interaction.get(InteractionGroupUidKey);
+    const interactionGroupUid = getOlcVirtualGroupUid(interaction);
     if (interactionGroupUid) {
       console.warn(
         `Interaction with uid "${uid}" already exists in group "${interactionGroupUid}"`,
       );
       return;
     }
-    interaction.set(InteractionUidKey, uid);
-    interaction.set(InteractionGroupUidKey, this.groupUid);
+    interaction.set(olcUidKey, uid);
+    interaction.set(olcVirtualGroupUidKey, this.virtualGroupUid);
     this.map.addInteraction(interaction);
   }
 
@@ -60,7 +66,7 @@ export class InteractionGroup {
    */
   find(uid: string): OlInteraction | undefined {
     return this.getGroupInteractions().find((interaction) => {
-      return interaction.get(InteractionUidKey) === uid;
+      return getOlcUid(interaction) === uid;
     });
   }
 
@@ -71,7 +77,7 @@ export class InteractionGroup {
    */
   findByIncluding(uidPart: string): OlInteraction[] {
     return this.getGroupInteractions().filter((interaction) => {
-      return `${interaction.get(InteractionUidKey)}`.includes(uidPart);
+      return `${getOlcUid(interaction)}`.includes(uidPart);
     });
   }
 
@@ -85,7 +91,7 @@ export class InteractionGroup {
       return;
     }
     // Remove the interaction from the map
-    interaction.unset(InteractionGroupUidKey);
+    interaction.unset(olcVirtualGroupUidKey);
     this.map.removeInteraction(interaction);
   }
 
@@ -96,7 +102,7 @@ export class InteractionGroup {
    */
   hasInteraction(uid: string): boolean {
     return this.getGroupInteractions().some(
-      (interaction) => interaction.get(InteractionUidKey) === uid,
+      (interaction) => getOlcUid(interaction) === uid,
     );
   }
 
@@ -131,7 +137,7 @@ export class InteractionGroup {
   destroy() {
     this.deactivateAll();
     this.getGroupInteractions().forEach((interaction) => {
-      this.remove(interaction.get(InteractionUidKey));
+      this.remove(getOlcUid(interaction) ?? '');
     });
   }
 

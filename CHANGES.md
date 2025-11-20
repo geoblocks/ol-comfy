@@ -4,6 +4,8 @@ List changes at major/minor level. Patches should be straightforward.
 
 # 1.4.0
 - Remove lodash.
+- Use the same uid system between Interaction and LayerGroup.
+  - Drop LayerUidKey, add olcUidKey instead.
 - Add setLayerProperty method in LayerGroup
 - Remove nearly useless interaction classes.
 - Add draw box interaction and related example.

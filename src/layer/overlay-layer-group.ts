@@ -1,6 +1,7 @@
 import { Subject } from 'rxjs';
 import OlMap from 'ol/Map.js';
-import { LayerGroup, type LayerGroupOptions, LayerUidKey } from './layer-group.js';
+import { getOlcUid, olcUidKey } from '../uid.js';
+import { LayerGroup, type LayerGroupOptions } from './layer-group.js';
 import {
   createEmpty as olCreateEmptyExtent,
   extend as olExtend,
@@ -21,7 +22,7 @@ export const DefaultOverlayLayerGroupUid = 'olcOverlayLayerGroupUid';
  * Event definition for "affected" event of a feature in the layerGroup.
  */
 export interface FeatureAffected {
-  [LayerUidKey]: string;
+  [olcUidKey]: string;
   reason: string;
   affected: OlFeature[];
   noMoreAffected?: OlFeature[];
@@ -31,7 +32,7 @@ export interface FeatureAffected {
  * Event definition for property change in a feature of a layer in the layerGroup.
  */
 export interface FeaturePropertyChanged {
-  [LayerUidKey]: string;
+  [olcUidKey]: string;
   propertyKey: string;
   features: OlFeature[];
 }
@@ -57,7 +58,7 @@ export class OverlayLayerGroup extends LayerGroup {
   readonly featuresPropertyChanged: Subject<FeaturePropertyChanged>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
-    const layerGroupUid = options[LayerUidKey] ?? DefaultOverlayLayerGroupUid;
+    const layerGroupUid = options[olcUidKey] ?? DefaultOverlayLayerGroupUid;
     super(map);
     const position = options.position ?? 20;
     this.addLayerGroup(layerGroupUid, position);
@@ -174,7 +175,7 @@ export class OverlayLayerGroup extends LayerGroup {
         (currentExtent, layer) =>
           olExtend(
             currentExtent,
-            this.getLayerFeaturesExtent(layer.get(LayerUidKey)) ?? [],
+            this.getLayerFeaturesExtent(getOlcUid(layer) ?? '') ?? [],
           ),
         olCreateEmptyExtent(),
       );
@@ -202,7 +203,7 @@ export class OverlayLayerGroup extends LayerGroup {
     noMoreAffected?: OlFeature<OlGeometry>[],
   ) {
     this.featuresAffected.next({
-      [LayerUidKey]: layerUid,
+      [olcUidKey]: layerUid,
       reason,
       affected,
       noMoreAffected,
@@ -237,7 +238,7 @@ export class OverlayLayerGroup extends LayerGroup {
   ) {
     this.getLayer(layerUid)?.changed();
     this.featuresPropertyChanged.next({
-      [LayerUidKey]: layerUid,
+      [olcUidKey]: layerUid,
       propertyKey,
       features,
     });

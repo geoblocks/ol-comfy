@@ -1,7 +1,6 @@
 import OlMap from 'ol/Map.js';
 import OlOverlay from 'ol/Overlay.js';
-
-export const OverlayGroupUid = 'olcOverlayGroupUid';
+import { getOlcVirtualGroupUid, olcVirtualGroupUidKey } from '../uid.js';
 
 /**
  * Store and manage overlays (popups) on the map.
@@ -13,7 +12,7 @@ export class Overlay {
    * Add an overlay (with a group id) to the map.
    */
   addOverlay(overlayGroupUid: string, overlay: OlOverlay) {
-    overlay.set(OverlayGroupUid, overlayGroupUid);
+    overlay.set(olcVirtualGroupUidKey, overlayGroupUid);
     this.map.addOverlay(overlay);
   }
 
@@ -24,7 +23,7 @@ export class Overlay {
     return this.map
       .getOverlays()
       .getArray()
-      .filter((overlay) => overlay.get(OverlayGroupUid) === overlayGroupUid);
+      .filter((overlay) => getOlcVirtualGroupUid(overlay) === overlayGroupUid);
   }
 
   /**
@@ -34,7 +33,7 @@ export class Overlay {
     this.map
       .getOverlays()
       .getArray()
-      .filter((overlay: OlOverlay) => overlay.get(OverlayGroupUid) === overlayGroupUid)
+      .filter((overlay: OlOverlay) => getOlcVirtualGroupUid(overlay) === overlayGroupUid)
       .forEach((overlay: OlOverlay) => this.map.removeOverlay(overlay));
   }
 

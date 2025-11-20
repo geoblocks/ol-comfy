@@ -5,7 +5,7 @@ import { BackgroundLayerGroup } from './background-layer-group.js';
 import { Map } from '../map/map.js';
 import { getLayerGroup } from '../test/test-data.js';
 import type OlEvent from 'ol/events/Event.js';
-import { LayerUidKey } from './layer-group.js';
+import { getOlcUid } from '../uid.js';
 
 describe('BackgroundLayerGroup', () => {
   let bgGroup: BackgroundLayerGroup;
@@ -51,7 +51,8 @@ describe('BackgroundLayerGroup', () => {
             .getLayers()
             .getArray()
             .find((layer) => layer.getVisible());
-          expect(visibleLayer?.get(LayerUidKey)).toEqual('secondLayer');
+          expect(visibleLayer).toBeDefined();
+          expect(getOlcUid(visibleLayer!)).toEqual('secondLayer');
           done('Done');
         }
       });

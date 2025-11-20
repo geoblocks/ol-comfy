@@ -1,7 +1,6 @@
 import OlMap from 'ol/Map.js';
 import OlControl from 'ol/control/Control.js';
-
-export const ControlUidKey = 'olcControlUid';
+import { getOlcUid, olcUidKey } from '../uid.js';
 
 /**
  * Provides helper for OL map.
@@ -24,7 +23,7 @@ export class Map {
     return this.map
       .getControls()
       .getArray()
-      .some((control) => control.get(ControlUidKey) === controlUid);
+      .some((control) => getOlcUid(control) === controlUid);
   }
 
   /**
@@ -37,7 +36,7 @@ export class Map {
     if (this.hasControl(controlUid)) {
       return;
     }
-    control.set(ControlUidKey, controlUid);
+    control.set(olcUidKey, controlUid);
     this.map.addControl(control);
   }
 
