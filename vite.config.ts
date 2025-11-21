@@ -12,9 +12,9 @@ export default defineConfig({
       input: {
         index: 'examples/index.html',
         draw: 'examples/draw/draw.html',
-        draw_shape: 'examples/draw_shape/draw_shape.html',
+        drawshape: 'examples/draw_shape/draw_shape.html',
         layer: 'examples/layer/layer.html',
-        multimap: 'examples/multi-map/multi-map.html',
+        multimap: 'examples/multi_map/multi_map.html',
       },
     },
   },
