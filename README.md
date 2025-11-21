@@ -36,7 +36,8 @@ npm run dev
 The source is transpiled to standard ES modules and published on npm.
 
 ```bash
-# update CHANGES.md
+# Update the `CHANGES.md` file
+# Update the `vite.config.ts` file you have new example files
 npm run build
 npm version patch # Or minor, major
 npm publish
