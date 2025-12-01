@@ -9,8 +9,7 @@
   ],
   "_peerDependenciesComment_": "Dependencies with open range version, to grant liberties on final usage.",
   "peerDependencies": {
-    "ol": ">=10.0.0",
-    "rxjs": ">=7.0.0"
+    "ol": ">=10.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

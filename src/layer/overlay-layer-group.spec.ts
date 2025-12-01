@@ -6,7 +6,11 @@ import OlFeature from 'ol/Feature.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import OlSourceCluster from 'ol/source/Cluster.js';
 import OlCollection from 'ol/Collection.js';
-import { OverlayLayerGroup } from './overlay-layer-group.js';
+import {
+  FeatureAffectedEventType,
+  FeaturePropertyChangedEventType,
+  OverlayLayerGroup,
+} from './overlay-layer-group.js';
 import { Map } from '../map/map.js';
 import { olcUidKey } from '../uid.js';
 
@@ -200,17 +204,17 @@ describe('OverlayLayerGroup', () => {
     });
   });
 
-  it('should emitFeaturesAffected', () =>
+  it('should dispatchFeaturesAffected', () =>
     new Promise((done) => {
       const layerUid = 'overlay';
       const features = [new OlFeature({ geometry: new OlGeomPoint([3000, -1000]) })];
-      overlayLayerGroup.featuresAffected.subscribe((evt) => {
+      overlayLayerGroup.on(FeatureAffectedEventType, (evt) => {
         expect(evt[olcUidKey]).toBe(layerUid);
         expect(evt.affected.length).toEqual(0);
         expect(evt.noMoreAffected).toBe(features);
         done('Done');
       });
-      overlayLayerGroup.emitFeaturesAffected(layerUid, 'deselected', [], features);
+      overlayLayerGroup.dispatchFeaturesAffected(layerUid, 'deselected', [], features);
     }));
 
   it('should setFeaturesProperty', () => {
@@ -232,13 +236,13 @@ describe('OverlayLayerGroup', () => {
     ]);
   });
 
-  it('should emitFeaturePropertyChanged', () =>
+  it('should setFeatureProperty and listen', () =>
     new Promise((done) => {
       const layerUid = 'test';
       const features = [new OlFeature({ geometry: new OlGeomPoint([0, 1000]) })];
       const propertyKey = 'foo';
       const propertyValue = 'bar';
-      overlayLayerGroup.featuresPropertyChanged.subscribe((evt) => {
+      overlayLayerGroup.on(FeaturePropertyChangedEventType, (evt) => {
         expect(evt[olcUidKey]).toBe(layerUid);
         expect(evt.propertyKey).toBe('foo');
         expect(evt.features).toEqual(features);

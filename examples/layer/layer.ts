@@ -8,7 +8,10 @@ import OlGeomPoint from 'ol/geom/Point.js';
 import { OSM } from 'ol/source.js';
 import { Map } from '../../src/map/map.js';
 import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
-import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
+import {
+  OverlayLayerGroup,
+  FeaturePropertyChangedEventType,
+} from '../../src/layer/overlay-layer-group.js';
 import { olcUidKey } from '../../src/uid.js';
 
 // Globally accessible values you need:
@@ -50,7 +53,7 @@ const backgroundLayerGroup = new BackgroundLayerGroup(map);
 backgroundLayerGroup.addLayer(backgroundLayer1, backgroundLayer1Id);
 
 // A component wanting to know changes on features for a specific layer.
-overlayLayerGroup.featuresPropertyChanged.subscribe((featurePropertyChanged) => {
+overlayLayerGroup.on(FeaturePropertyChangedEventType, (featurePropertyChanged) => {
   const layer = featurePropertyChanged[olcUidKey];
   const key = featurePropertyChanged.propertyKey;
   print(`Changed "${key}" in all features of layer "${layer}"`);

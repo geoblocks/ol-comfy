@@ -4,11 +4,18 @@ import BaseLayer from 'ol/layer/Base.js';
 import OlLayerLayer from 'ol/layer/Layer.js';
 import OlSourceSource from 'ol/source/Source.js';
 import { Map } from '../map/map.js';
-import { LayerGroup } from './layer-group.js';
+import {
+  type LayerAffectedEvent,
+  LayerAffectedEventType,
+  LayerGroup,
+  type LayerPropertyChangedEvent,
+  LayerPropertyChangedEventType,
+} from './layer-group.js';
 import { getLayerGroup } from '../test/test-data.js';
 import { BackgroundLayerGroup } from './background-layer-group.js';
 import { CollectionEvent } from 'ol/Collection.js';
 import { olcUidKey } from '../uid.js';
+import { unByKey } from 'ol/Observable.js';
 
 describe('LayersStore', () => {
   let layerGroup: LayerGroup;
@@ -64,34 +71,93 @@ describe('LayersStore', () => {
     expect(layerGroup.getAllSources().length).toEqual(1);
   });
 
-  it('should setLayerProperty', () =>
-    new Promise((done) => {
-      const layerUid = 'my-layer';
-      const propKey = 'test';
-      layerGroup.layerPropertyChanged.subscribe((evt) => {
-        expect(evt[olcUidKey]).toBe(layerUid);
-        expect(evt.propertyKey).toEqual(propKey);
-        expect(layerGroup.getLayer(layerUid)?.get(propKey)).toEqual('success');
+  describe('basic events mechanisms', () => {
+    it('tests "on" listener', () => {
+      new Promise((done) => {
+        let callIndex = 0;
+        layerGroup.on(LayerAffectedEventType, () => {
+          callIndex++;
+        });
+        layerGroup.dispatchLayerAffected('a', 'b');
+        layerGroup.dispatchLayerAffected('a', 'b');
+        expect(callIndex).toEqual(2);
         done('Done');
       });
-      baseLayer.set(propKey, 'init');
-      layerGroup.setLayerProperty(layerUid, propKey, 'no-layer');
-      expect(baseLayer.get(propKey)).toEqual('init');
-      layerGroup.addLayer(baseLayer, layerUid);
-      layerGroup.setLayerProperty(layerUid, propKey, 'success');
-    }));
+    });
 
-  it('should emitLayerAffected', () =>
-    new Promise((done) => {
-      const layerUid = 'my-layer';
-      const reason = 'targeted';
-      layerGroup.layerAffected.subscribe((evt) => {
-        expect(evt[olcUidKey]).toBe(layerUid);
-        expect(evt.reason).toBe(reason);
+    it('tests "once" listener', () => {
+      new Promise((done) => {
+        let callIndex = 0;
+        layerGroup.once(LayerAffectedEventType, () => {
+          callIndex++;
+        });
+        layerGroup.dispatchLayerAffected('a', 'b');
+        layerGroup.dispatchLayerAffected('a', 'b');
+        expect(callIndex).toEqual(1);
         done('Done');
       });
-      layerGroup.emitLayerAffected(layerUid, reason);
-    }));
+    });
+  });
+
+  it('tests "un" on listener', () => {
+    new Promise((done) => {
+      let callIndex = 0;
+      const cb = () => {
+        callIndex++;
+      };
+      layerGroup.on(LayerAffectedEventType, cb);
+      layerGroup.dispatchLayerAffected('a', 'b');
+      layerGroup.un(LayerAffectedEventType, cb);
+      layerGroup.dispatchLayerAffected('a', 'b');
+      expect(callIndex).toEqual(1);
+      done('Done');
+    });
+  });
+
+  it('tests "unByKey" on listener', () => {
+    new Promise((done) => {
+      let callIndex = 0;
+      const eventKey = layerGroup.on(LayerAffectedEventType, () => {
+        callIndex++;
+        unByKey(eventKey);
+      });
+      layerGroup.dispatchLayerAffected('a', 'b');
+      layerGroup.dispatchLayerAffected('a', 'b');
+      expect(callIndex).toEqual(1);
+      done('Done');
+    });
+  });
+
+  describe('LayerGroup custom events', () => {
+    it('should setLayerProperty', () =>
+      new Promise((done) => {
+        const layerUid = 'my-layer';
+        const propKey = 'test';
+        layerGroup.on(LayerPropertyChangedEventType, (evt: LayerPropertyChangedEvent) => {
+          expect(evt[olcUidKey]).toBe(layerUid);
+          expect(evt.propertyKey).toEqual(propKey);
+          expect(layerGroup.getLayer(layerUid)?.get(propKey)).toEqual('success');
+          done('Done');
+        });
+        baseLayer.set(propKey, 'init');
+        layerGroup.setLayerProperty(layerUid, propKey, 'no-layer');
+        expect(baseLayer.get(propKey)).toEqual('init');
+        layerGroup.addLayer(baseLayer, layerUid);
+        layerGroup.setLayerProperty(layerUid, propKey, 'success');
+      }));
+
+    it('should notifyLayerAffected', () =>
+      new Promise((done) => {
+        const layerUid = 'my-layer';
+        const reason = 'targeted';
+        layerGroup.on(LayerAffectedEventType, (evt: LayerAffectedEvent) => {
+          expect(evt[olcUidKey]).toBe(layerUid);
+          expect(evt.reason).toBe(reason);
+          done('Done');
+        });
+        layerGroup.dispatchLayerAffected(layerUid, reason);
+      }));
+  });
 
   it('should getAttributions', () => {
     const createLayer = (attribution: string) =>
