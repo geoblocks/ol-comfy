@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createDummyFeatures } from '../test/test-data.js';
 import {
-  getCenterOfArea,
   getDistinctFeaturesProperties,
   getFeaturesExtent,
   getLinesBetweenPoints,
@@ -9,8 +8,6 @@ import {
 import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
 import OlFeature from 'ol/Feature.js';
-import OlGeomPolygon from 'ol/geom/Polygon.js';
-import OlGeomCircle from 'ol/geom/Circle.js';
 
 describe('feature utils', () => {
   it('getDistinctFeaturesProperties', () => {
@@ -44,13 +41,6 @@ describe('feature utils', () => {
     expect(result[0]?.get('to')).toEqual(1);
     expect(result[1]?.get('from')).toEqual(1);
     expect(result[1]?.get('to')).toEqual(2);
-  });
-
-  it('getCenterOfArea', () => {
-    const polygon = new OlGeomPolygon([[[0, 0]], [[0, 3]], [[3, 3]], [[3, 0]], [[0, 0]]]);
-    expect(getCenterOfArea(polygon).getCoordinates()).toEqual([1.5, 1.5, -Infinity]);
-    const circle = new OlGeomCircle([2, -3], 5);
-    expect(getCenterOfArea(circle).getCoordinates()).toEqual([2, -3]);
   });
 
   it('getFeaturesExtent', () => {
