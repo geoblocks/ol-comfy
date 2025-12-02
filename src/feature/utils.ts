@@ -1,8 +1,6 @@
 import OlFeature from 'ol/Feature.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
-import OlGeomPolygon from 'ol/geom/Polygon.js';
-import OlGeomCircle from 'ol/geom/Circle.js';
 import {
   createEmpty as olCreateEmptyExtent,
   extend as olExtend,
@@ -57,17 +55,6 @@ export const getLinesBetweenPoints = (
     }
     return line;
   });
-};
-
-/**
- * @returns OlGeomPoint at the center of the given "area" geometry (circle
- * or polygon).
- */
-export const getCenterOfArea = (geometry: OlGeomPolygon | OlGeomCircle): OlGeomPoint => {
-  if (geometry instanceof OlGeomPolygon) {
-    return geometry.getInteriorPoint();
-  }
-  return new OlGeomPoint(geometry.getCenter());
 };
 
 /**

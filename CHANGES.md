@@ -6,6 +6,7 @@ List changes at major/minor level. Patches should be straightforward.
 - Stop adding breaking changes in minor versions.
 - Drop RXJS, use ol/native mechanisms instead.
 - Remove the UnByKeyAll method, you can use the native ol/Observable.unByKeyAll method instead.
+- Refactor and improve the feature.utils getCenterOfArea to geometry.utils getCenterOfGeometry.
 
 # 1.4.0
 - Remove lodash.
