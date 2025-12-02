@@ -23,13 +23,13 @@ import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
 import OlCircle from 'ol/style/Circle.js';
 import OlFill from 'ol/style/Fill.js';
 import OlStroke from 'ol/style/Stroke.js';
-import { unByKeyAll } from '../../src/event/utils.js';
 import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
 import { platformModifierKeyOnly, click } from 'ol/events/condition.js';
 import { EmptyStyle } from '../../src/style.js';
 import { InteractionGroup } from '../../src/interaction/interactionGroup.js';
 import { overEvery } from '../../src/utils.js';
+import { unByKey } from 'ol/Observable.js';
 
 // Globally accessible values you need:
 const map = Map.createEmptyMap();
@@ -232,7 +232,7 @@ const destroy = (isDemo: boolean) => {
   if (isDemo) {
     return;
   }
-  unByKeyAll(eventKeys);
+  unByKey(eventKeys);
   interactionGroupToDraw.destroy();
   interactionGroupToModify.destroy();
   listenKey?.destroy();
