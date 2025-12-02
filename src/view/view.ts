@@ -4,8 +4,8 @@ import { type Extent as OlExtent } from 'ol/extent.js';
 import { getPointResolution } from 'ol/proj.js';
 import { OPENLAYERS_ANIMATION_DELAY } from '../const-from-outside.js';
 import { type EventsKey } from 'ol/events.js';
-import { unByKeyAll } from '../event/utils.js';
 import { isNil } from '../utils.js';
+import { unByKey } from 'ol/Observable.js';
 
 /**
  * Helpers for the view in the map.
@@ -38,7 +38,7 @@ export class View {
    * Removes the map view change listener.
    */
   destroy() {
-    unByKeyAll(this.eventsKeys);
+    unByKey(this.eventsKeys);
   }
 
   /**

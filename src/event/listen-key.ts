@@ -1,6 +1,6 @@
 import { type EventsKey, listen } from 'ol/events.js';
 import BaseEvent from 'ol/events/Event.js';
-import { unByKeyAll } from './utils.js';
+import { unByKey } from 'ol/Observable.js';
 
 type callback = () => void;
 
@@ -27,7 +27,7 @@ export class ListenKey {
    * Destroy listeners. The instance is then useless.
    */
   destroy() {
-    unByKeyAll(this.eventKeys);
+    unByKey(this.eventKeys);
   }
 
   /**
