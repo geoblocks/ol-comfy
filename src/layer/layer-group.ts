@@ -7,24 +7,11 @@ import OlSourceSource from 'ol/source/Source.js';
 import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { isNil, uniq } from '../utils.js';
-import { Subject } from 'rxjs';
 import { getOlcUid, olcUidKey } from '../uid.js';
-
-/**
- * Event definition for "affected" event of a layer in the layerGroup.
- */
-export interface LayerAffected {
-  [olcUidKey]: string;
-  reason: string;
-}
-
-/**
- * Event definition for property change in a layer of this layerGroup.
- */
-export interface LayerPropertyChanged {
-  [olcUidKey]: string;
-  propertyKey: string;
-}
+import BaseObject from 'ol/Object.js';
+import type { EventsKey } from 'ol/events.js';
+import BaseEvent from 'ol/events/Event.js';
+import type { EventTypes, OnSignature } from 'ol/Observable.js';
 
 /**
  * Options to create a layer group.
@@ -39,31 +26,74 @@ export interface LayerGroupOptions {
   groupUid?: string;
 }
 
+// Event types names.
+export const LayerPropertyChangedEventType = 'olcLayerPropertyChanged';
+export const LayerAffectedEventType = 'olcLayerAffected';
+
+/**
+ * An event to provide changed-like-event, without touching the original layer.
+ * With source layer uid and free reason why/by/for it's fired.
+ * Example: fire/listen to silently set layer opacity (as reason) without touching the real
+ * layer and having to listen to every layer individually.
+ */
+export class LayerAffectedEvent extends BaseEvent {
+  static readonly type = LayerAffectedEventType;
+  readonly [olcUidKey]: string;
+  readonly reason: string;
+
+  constructor(layerUid: string, reason: string) {
+    super(LayerAffectedEvent.type);
+    this[olcUidKey] = layerUid;
+    this.reason = reason;
+  }
+}
+
+/**
+ * An event to listen on layer property changes in this LayerGroup without the need of having
+ * the layer itself.
+ */
+export class LayerPropertyChangedEvent extends BaseEvent {
+  static readonly type = LayerPropertyChangedEventType;
+  readonly [olcUidKey]: string;
+  readonly propertyKey: string;
+
+  constructor(layerUid: string, propertyKey: string) {
+    super(LayerPropertyChangedEvent.type);
+    this[olcUidKey] = layerUid;
+    this.propertyKey = propertyKey;
+  }
+}
+
+// Typesafe ol events.
+export type LayerAffectedOnSignature = (
+  type: typeof LayerAffectedEventType,
+  listener: (event: LayerAffectedEvent) => void,
+) => EventsKey;
+export type LayerPropertyChangedOnSignature = (
+  type: typeof LayerPropertyChangedEventType,
+  listener: (event: LayerPropertyChangedEvent) => void,
+) => EventsKey;
+export type LayerGroupOnSignature = LayerAffectedOnSignature &
+  LayerPropertyChangedOnSignature &
+  OnSignature<EventTypes, Event, EventsKey>; // Default Ol
+
 /**
  * Parent (abstract) class for a layer group. Helps to manipulate one layer group.
  * The child class must start by setting the layerGroup.
+ * It extends ol/Object to be able to listen to events and dispatch them.
  */
-export class LayerGroup {
+export class LayerGroup extends BaseObject {
   protected readonly map: OlMap;
   // @ts-expect-error this will be handled by the child classes
   protected layerGroup: OlLayerGroup;
-  /**
-   * To provide changed-like-event, without touching the original layer.
-   * With source layer uid and free reason why/by/for it's emitted.
-   * Example: emit/listen to silently set layer opacity (as reason) without touching the real
-   * layer and having to listen to every layer individually.
-   */
-  readonly layerAffected: Subject<LayerAffected>;
-  /**
-   * Event to observe layer property change in this LayerGroup without the need of having
-   * the layer itself.
-   */
-  readonly layerPropertyChanged: Subject<LayerPropertyChanged>;
+
+  declare on: LayerGroupOnSignature;
+  declare once: LayerGroupOnSignature;
+  declare un: LayerGroupOnSignature;
 
   constructor(map: OlMap) {
+    super();
     this.map = map;
-    this.layerAffected = new Subject<LayerAffected>();
-    this.layerPropertyChanged = new Subject<LayerPropertyChanged>();
   }
 
   /**
@@ -144,7 +174,7 @@ export class LayerGroup {
   }
 
   /**
-   * Set a property of a layer and emit a "LayerPropertyChanged" event if the value has changed.
+   * Set a property of a layer and fires a "LayerPropertyChanged" event if the value has changed.
    */
   setLayerProperty(layerUid: string, propertyKey: string, value: unknown) {
     const layer = this.getLayer(layerUid);
@@ -152,28 +182,22 @@ export class LayerGroup {
       return;
     }
     layer.set(propertyKey, value);
-    this.emitLayerPropertyChanged(layerUid, propertyKey);
+    this.dispatchLayerPropertyChanged(layerUid, propertyKey);
   }
 
   /**
-   * Emit an "affected" layer event.
+   * Fires an "affected" layer event.
    */
-  emitLayerAffected(layerUid: string, reason: string) {
-    this.layerAffected.next({
-      [olcUidKey]: layerUid,
-      reason,
-    });
+  dispatchLayerAffected(layerUid: string, reason: string) {
+    this.dispatchEvent(new LayerAffectedEvent(layerUid, reason));
   }
 
   /**
-   * Emits a "LayerPropertyChanged" and call a "changed" event on the matching OL layer.
+   * Fires a "LayerPropertyChanged" and call a "changed" event on the matching OL layer.
    */
-  emitLayerPropertyChanged(layerUid: string, propertyKey: string) {
+  dispatchLayerPropertyChanged(layerUid: string, propertyKey: string) {
+    this.dispatchEvent(new LayerPropertyChangedEvent(layerUid, propertyKey));
     this.getLayer(layerUid)?.changed();
-    this.layerPropertyChanged.next({
-      [olcUidKey]: layerUid,
-      propertyKey,
-    });
   }
 
   /**

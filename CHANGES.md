@@ -2,6 +2,10 @@
 
 List changes at major/minor level. Patches should be straightforward.
 
+# 2.0.0
+- Stop adding breaking changes in minor versions.
+- Drop RXJS, use ol/native mechanisms instead.
+
 # 1.4.0
 - Remove lodash.
 - Use the same uid system between Interaction and LayerGroup.
