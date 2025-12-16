@@ -13,7 +13,7 @@ describe('ViewStore', () => {
   beforeEach(() => {
     const map = Map.createEmptyMap();
     olcView = new View(map);
-    // Set view after assigning the view. The view should be this one in the
+    // Set the view after assigning the view. The view should be this one in the
     // ol-comfy view.
     map.setView(new OlView({ center: [0, 0], zoom: 2 }));
   });
