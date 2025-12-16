@@ -56,10 +56,12 @@ export class View {
    * Set the view to the new nearest extent.
    * @param extent The new extent of the map.
    * @param padding The padding (in pixels) to add around this extent.
+   * @param animated If true, the map will "move" to the new extent. See also OL view.animate.
    */
-  fit(extent: OlExtent, padding: number) {
+  fit(extent: OlExtent, padding: number, animated = false) {
     const boxPadding = [0, 0, 0, 0].fill(padding);
-    this.view.fit(extent, { nearest: true, padding: boxPadding });
+    const duration = animated ? OPENLAYERS_ANIMATION_DELAY : 0;
+    this.view.fit(extent, { nearest: true, padding: boxPadding, duration });
   }
 
   /**

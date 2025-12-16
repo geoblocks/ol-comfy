@@ -7,6 +7,7 @@ List changes at major/minor level. Patches should be straightforward.
 - Drop RXJS, use ol/native mechanisms instead.
 - Remove the UnByKeyAll method, you can use the native ol/Observable.unByKeyAll method instead.
 - Refactor and improve the feature.utils getCenterOfArea to geometry.utils getCenterOfGeometry.
+- Add an animation possibility on the olc view.fit.
 
 # 1.4.0
 - Remove lodash.
