@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ol-comfy from a single entry point</title>
+    <link rel="stylesheet" href="../../node_modules/ol/ol.css" />
+    <link rel="stylesheet" href="../common.css" />
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <p id="common-links"></p>
+    <p>
+      A standard usage of ol-comfy is to start by creating a singleton containing all olc
+      classes your application needs. Then in your app you only need to access this
+      singleton and some (string) ids to access everything you need from Ol-Comfy and
+      OpenLayers!
+    </p>
+    <p>
+      <span class="bold">Check this example's folder</span> to see how to build such a
+      singleton.
+    </p>
+    <p>Here's an example with two olc instances from a single singleton.</p>
+    <div id="map1"></div>
+    <div id="map2"></div>
+    <script type="module" src="../common.ts"></script>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>
