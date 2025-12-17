@@ -6,13 +6,17 @@
     <link rel="stylesheet" href="../common.css" />
   </head>
   <body>
-    <p>Simple example about drawing predefined ol-comfy shapes.</p>
+    <p id="common-links" data-page-path="modules/interaction_drawShape"></p>
+    <p>
+      Example about drawing predefined ol-comfy shapes, also using interaction groups.
+    </p>
     <div id="map"></div>
     <label for="type">Draw:</label>
     <select id="type">
       <option value="box">Custom box</option>
       <option value="circle">Ol Circle</option>
     </select>
-    <script type="module" src="./draw_shape.ts"></script>
+    <script type="module" src="../common.ts"></script>
+    <script type="module" src="./index.ts"></script>
   </body>
 </html>

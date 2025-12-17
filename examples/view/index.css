@@ -1,0 +1,27 @@
+.container {
+  position: relative;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.controls button {
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  background-color: white;
+  margin-bottom: 0.5rem;
+}
+
+.controls button:hover {
+  background-color: #f0f0f0;
+}
+
+.controls button:active {
+  background-color: #b0b0b0;
+}
