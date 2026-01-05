@@ -1,0 +1,18 @@
+#common-links {
+  background-color: whitesmoke;
+  padding: 0.5rem;
+}
+
+#map {
+  height: 400px;
+  width: 600px;
+}
+
+p {
+  max-width: 40em;
+  text-align: justify;
+}
+
+.bold {
+  font-weight: bold;
+}

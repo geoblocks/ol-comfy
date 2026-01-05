@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ol-comfy from a single entry point</title>
+    <script type="module" crossorigin src="/ol-comfy/assets/examples/single-entry-point/index.html-unaCnOYG.js"></script>
+    <link rel="modulepreload" crossorigin href="/ol-comfy/assets/overlay-layer-group-BTOISlhP.js">
+    <link rel="modulepreload" crossorigin href="/ol-comfy/assets/store-manager-ofW-ldOS.js">
+    <link rel="stylesheet" crossorigin href="/ol-comfy/assets/overlay-layer-group-CiZEbZGh.css">
+    <link rel="stylesheet" crossorigin href="/ol-comfy/assets/index-DpOmfr5_.css">
+  </head>
+  <body>
+    <p id="common-links"></p>
+    <p>
+      A standard usage of ol-comfy is to start by creating a singleton containing all olc
+      classes your application needs. Then in your app you only need to access this
+      singleton and some (string) ids to access everything you need from Ol-Comfy and
+      OpenLayers!
+    </p>
+    <p>
+      <span>Check the example's root folder, files</span>
+      <a
+        target="_blank"
+        href="https://github.com/geoblocks/ol-comfy/tree/main/examples/store-manager.ts"
+        >store-manager.ts
+      </a>
+      <span> and </span>
+      <a
+        target="_blank"
+        href="https://github.com/geoblocks/ol-comfy/tree/main/examples/map-entry.ts"
+        >map-entry.ts
+      </a>
+      <span>to see how to build such a singleton.</span>
+    </p>
+    <p>Here's an example with two olc instances from a single singleton.</p>
+    <div id="map1"></div>
+    <div id="map2"></div>
+  </body>
+</html>
