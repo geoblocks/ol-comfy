@@ -117,16 +117,16 @@ const setupDrawing = () => {
       delayOnDeleteAction.bind(this),
     ),
   });
-  mapEntry.getOlcSelectInteractionGroup().add(modifyInteractionId, modify);
+  mapEntry.getOlcModifyInteractionGroup().add(modifyInteractionId, modify);
   translate = new OlInteractionTranslate({
     layers: [drawLayer],
     condition: platformModifierKeyOnly,
   });
-  mapEntry.getOlcSelectInteractionGroup().add('translate', translate);
+  mapEntry.getOlcModifyInteractionGroup().add('translate', translate);
   snap = new OlInteractionSnap({
     source,
   });
-  mapEntry.getOlcSelectInteractionGroup().add('snap', snap);
+  mapEntry.getOlcModifyInteractionGroup().add('snap', snap);
   // Custom listener for this component.
   // Case where we can't directly reach the drawPoint or drawLine instance.
   eventKeys.push(
@@ -217,7 +217,7 @@ const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
       if (features.includes(feature)) {
         overlayLayerGroup.removeFeatures(layer1Id, [feature]);
         // Make the pointer to be updated in Firefox;
-        const modify = mapEntry.getOlcSelectInteractionGroup().find(modifyInteractionId);
+        const modify = mapEntry.getOlcModifyInteractionGroup().find(modifyInteractionId);
         modify?.setActive(false);
         modify?.setActive(true);
       }
