@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-const examples = ['simple', 'single-entry-point', 'draw', 'draw-shap', 'layer', 'view'];
+const examples = ['simple', 'single-entry-point', 'draw', 'draw-shape', 'layer', 'view'];
 
 export default defineConfig({
   server: {
