@@ -18,7 +18,7 @@ export class MapEntry {
   private readonly olcOverlayLayerTop: OverlayLayerGroup;
   private readonly olcOverlay: Overlay;
   private readonly olcDrawInteractionGroup: InteractionGroup;
-  private readonly olcSelectInteractionGroup: InteractionGroup;
+  private readonly olcModifyInteractionGroup: InteractionGroup;
 
   /**
    * Create and set up the map.
@@ -37,9 +37,9 @@ export class MapEntry {
       this.olcMap.getMap(),
       '__interaction_group_draw__',
     );
-    this.olcSelectInteractionGroup = new InteractionGroup(
+    this.olcModifyInteractionGroup = new InteractionGroup(
       this.olcMap.getMap(),
-      '__interaction_group_select__',
+      '__interaction_group_modify__',
     );
   }
 
@@ -86,16 +86,16 @@ export class MapEntry {
   }
 
   /**
-   * @returns the ol-comfy interaction-group.
+   * @returns the ol-comfy interaction-group to draw features.
    */
   getOlcDrawInteractionGroup(): InteractionGroup {
     return this.olcDrawInteractionGroup;
   }
 
   /**
-   * @returns the ol-comfy interaction-group.
+   * @returns the ol-comfy interaction-group to modify features.
    */
-  getOlcSelectInteractionGroup(): InteractionGroup {
-    return this.olcSelectInteractionGroup;
+  getOlcModifyInteractionGroup(): InteractionGroup {
+    return this.olcModifyInteractionGroup;
   }
 }
