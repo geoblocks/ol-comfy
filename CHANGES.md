@@ -8,6 +8,7 @@ List changes at major/minor level. Patches should be straightforward.
 - Remove the UnByKeyAll method, you can use the native ol/Observable.unByKeyAll method instead.
 - Refactor and improve the feature.utils getCenterOfArea to geometry.utils getCenterOfGeometry.
 - Add an animation possibility on the olc view.fit.
+- Use Kebab case for file names.
 
 # 1.4.0
 - Remove lodash.

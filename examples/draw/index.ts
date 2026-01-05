@@ -1,4 +1,3 @@
-import { Map } from '../../src/map/map.js';
 import OlView from 'ol/View.js';
 import OlLayerTile from 'ol/layer/Tile.js';
 import OlLayerVector from 'ol/layer/Vector.js';
@@ -18,8 +17,6 @@ import { ListenKey } from '../../src/event/listen-key.js';
 import { updateLayerStyle } from '../../src/layer/utils.js';
 import { MapBrowserEvent } from 'ol';
 import { type EventsKey } from 'ol/events.js';
-import { BackgroundLayerGroup } from '../../src/layer/background-layer-group.js';
-import { OverlayLayerGroup } from '../../src/layer/overlay-layer-group.js';
 import OlCircle from 'ol/style/Circle.js';
 import OlFill from 'ol/style/Fill.js';
 import OlStroke from 'ol/style/Stroke.js';
@@ -27,19 +24,36 @@ import OlGeomPoint from 'ol/geom/Point.js';
 import OlGeomLine from 'ol/geom/LineString.js';
 import { platformModifierKeyOnly, click } from 'ol/events/condition.js';
 import { EmptyStyle } from '../../src/style.js';
-import { InteractionGroup } from '../../src/interaction/interactionGroup.js';
 import { overEvery } from '../../src/utils.js';
-import { unByKey } from 'ol/Observable.js';
+import storeManager from '../store-manager.js';
 
 // Globally accessible values you need:
-const map = Map.createEmptyMap();
 const layer1Id = 'layer1-id';
 const backgroundLayer1Id = 'background1-id';
 const pointInteractionId = 'point-interaction-uid';
 const lineInteractionId = 'line-interaction-uid';
 const modifyInteractionId = 'modify-interaction-uid';
 
+// A file initializing the map using the storeManager and the mapEntry.
+const mapEntry = storeManager.getMapEntry();
+mapEntry
+  .getOlcMap()
+  .getMap()
+  .setView(
+    new OlView({
+      center: [0, 0],
+      zoom: 2,
+    }),
+  );
+mapEntry.getOlcMap().getMap().setTarget('map');
+
 // Setup example.
+const print = (msg: string) => {
+  document.querySelector('#console .text')!.textContent = msg;
+};
+
+// Below: Use ol-comfy and the example's mapEntry.
+// Your controller that initializes the layers.
 const layer1 = new OlLayerVector({
   source: new OlSourceVector({
     features: new OlCollection([new OlFeature()]),
@@ -48,29 +62,10 @@ const layer1 = new OlLayerVector({
 const backgroundLayer1 = new OlLayerTile({
   source: new OSM(),
 });
-const print = (msg: string) => {
-  document.querySelector('#console .text')!.textContent = msg;
-};
+mapEntry.getOlcOverlayLayer().addLayer(layer1, layer1Id);
+mapEntry.getOlcBackgroundLayer().addLayer(backgroundLayer1, backgroundLayer1Id);
 
-// Your controller initializing the map.
-map.setView(
-  new OlView({
-    center: [0, 0],
-    zoom: 2,
-  }),
-);
-map.setTarget('map');
-
-// Below: Use ol-comfy.
-// Your controller that initializes the layers and interactions.
-let overlayLayerGroup = new OverlayLayerGroup(map);
-overlayLayerGroup.addLayer(layer1, layer1Id);
-const backgroundLayerGroup = new BackgroundLayerGroup(map);
-backgroundLayerGroup.addLayer(backgroundLayer1, backgroundLayer1Id);
-const interactionGroupToModify = new InteractionGroup(map, 'modifyGroup');
-const interactionGroupToDraw = new InteractionGroup(map, 'drawGroup');
-
-// A component wanting to enable draw.
+// A file wanting to enable draw interactions.
 let drawPoint: OlInteractionDraw | undefined;
 let drawLine: OlInteractionDraw | undefined;
 let modify: OlInteractionModify | undefined;
@@ -82,16 +77,15 @@ const eventKeys: EventsKey[] = [];
 /**
  * Create and configure map interaction to draw.
  * That's a full example with draw, modification, translation, deletion with
- * custom condition and custom styling.
+ * custom condition, and custom styling.
  */
 const setupDrawing = () => {
   // Set up the layer to draw in.
-  overlayLayerGroup = new OverlayLayerGroup(map);
-  const drawLayer = overlayLayerGroup?.getLayer(layer1Id) as
+  const drawLayer = mapEntry.getOlcOverlayLayer().getLayer(layer1Id) as
     | OlLayerVector<OlSourceVector<OlFeature>>
     | undefined;
   const source = drawLayer?.getSource();
-  if (!drawLayer || !source || !map) {
+  if (!drawLayer || !source) {
     console.error('No layer source or no map to draw in.');
     return;
   }
@@ -105,14 +99,14 @@ const setupDrawing = () => {
     condition: () => !listenKey?.isKeyDown(),
     style: createStyle,
   });
-  interactionGroupToDraw.add(pointInteractionId, drawPoint);
+  mapEntry.getOlcDrawInteractionGroup().add(pointInteractionId, drawPoint);
   drawLine = new OlInteractionDraw({
     source,
     type: 'LineString',
     condition: () => !listenKey?.isKeyDown(),
     style: createStyle,
   });
-  interactionGroupToDraw.add(lineInteractionId, drawLine);
+  mapEntry.getOlcDrawInteractionGroup().add(lineInteractionId, drawLine);
   // Set up the "modify" and "translate" drawing interactions. Delete with delete+click.
   modify = new OlInteractionModify({
     source,
@@ -123,25 +117,31 @@ const setupDrawing = () => {
       delayOnDeleteAction.bind(this),
     ),
   });
-  interactionGroupToModify.add(modifyInteractionId, modify);
+  mapEntry.getOlcSelectInteractionGroup().add(modifyInteractionId, modify);
   translate = new OlInteractionTranslate({
     layers: [drawLayer],
     condition: platformModifierKeyOnly,
   });
-  interactionGroupToModify.add('translate', translate);
+  mapEntry.getOlcSelectInteractionGroup().add('translate', translate);
   snap = new OlInteractionSnap({
     source,
   });
-  interactionGroupToModify.add('snap', snap);
+  mapEntry.getOlcSelectInteractionGroup().add('snap', snap);
   // Custom listener for this component.
   // Case where we can't directly reach the drawPoint or drawLine instance.
   eventKeys.push(
-    interactionGroupToDraw.find(pointInteractionId)?.on('drawend', () => {
-      print(`Point added.`);
-    }),
-    interactionGroupToDraw.find(lineInteractionId)?.on('drawend', () => {
-      print(`Line added.`);
-    }),
+    mapEntry
+      .getOlcDrawInteractionGroup()
+      .find(pointInteractionId)
+      ?.on('drawend', () => {
+        print(`Point added.`);
+      }),
+    mapEntry
+      .getOlcDrawInteractionGroup()
+      .find(lineInteractionId)
+      ?.on('drawend', () => {
+        print(`Line added.`);
+      }),
   );
 };
 
@@ -195,6 +195,7 @@ const delayOnDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
  * It's given as a callback to the ol-comfy delete condition.
  */
 const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
+  const overlayLayerGroup = mapEntry.getOlcOverlayLayer();
   mapBrowserEvent.map.forEachFeatureAtPixel(
     mapBrowserEvent.pixel,
     (feature: OlFeature<OlGeometry> | RenderFeature) => {
@@ -216,7 +217,7 @@ const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
       if (features.includes(feature)) {
         overlayLayerGroup.removeFeatures(layer1Id, [feature]);
         // Make the pointer to be updated in Firefox;
-        const modify = interactionGroupToModify.find(modifyInteractionId);
+        const modify = mapEntry.getOlcSelectInteractionGroup().find(modifyInteractionId);
         modify?.setActive(false);
         modify?.setActive(true);
       }
@@ -224,32 +225,18 @@ const onDeleteAction = (mapBrowserEvent: MapBrowserEvent) => {
   );
 };
 
-/**
- * Should be set on a component to remove interaction from the map.
- * Not (really) used in this demo.
- */
-const destroy = (isDemo: boolean) => {
-  if (isDemo) {
-    return;
-  }
-  unByKey(eventKeys);
-  interactionGroupToDraw.destroy();
-  interactionGroupToModify.destroy();
-  listenKey?.destroy();
-};
-
-// Init the "component".
+// Init the "drawing".
 setupDrawing();
-interactionGroupToDraw.setActive(true, pointInteractionId);
-destroy(true);
+mapEntry.getOlcDrawInteractionGroup().setActive(true, pointInteractionId);
 
 // Listen to the inputs to enable the right tool. With ol-comfy, enabling a
 // draw tool auto-deactivates other drawing tools.
+// Interactions to "modify" are in another group and are not impacted by this toggle.
 const typeSelect = document.getElementById('type');
 typeSelect!.addEventListener('change', (evt) => {
   if ((evt.target as HTMLInputElement).value === 'point') {
-    interactionGroupToDraw.setActive(true, pointInteractionId);
+    mapEntry.getOlcDrawInteractionGroup().setActive(true, pointInteractionId);
   } else {
-    interactionGroupToDraw.setActive(true, lineInteractionId);
+    mapEntry.getOlcDrawInteractionGroup().setActive(true, lineInteractionId);
   }
 });

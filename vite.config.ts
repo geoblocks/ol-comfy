@@ -1,20 +1,26 @@
 import { defineConfig } from 'vite';
 
+const examples = ['simple', 'single-entry-point', 'draw', 'draw-shap', 'layer', 'view'];
+
 export default defineConfig({
   server: {
     port: 5173,
     open: '/ol-comfy/examples/index.html',
   },
-  base: "/ol-comfy/", // to deploy on gh-pages, specify the right base.
+  base: '/ol-comfy/', // to deploy on gh-pages, specify the right base.
   build: {
-    outDir: "demo",
+    outDir: 'demo',
+    minify: false, // More understandable examples, this doesn't affect npm package (done only by ts).
     rollupOptions: {
       input: {
         index: 'examples/index.html',
-        draw: 'examples/draw/draw.html',
-        drawshape: 'examples/draw_shape/draw_shape.html',
-        layer: 'examples/layer/layer.html',
-        multimap: 'examples/multi_map/multi_map.html',
+        ...examples.reduce(
+          (obj, val) => ({
+            ...obj,
+            [`examples/${val}/index.html`]: `examples/${val}/index.html`,
+          }),
+          {},
+        ),
       },
     },
   },
