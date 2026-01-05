@@ -1,5 +1,5 @@
 import { Map } from '../src/map/map.js';
-import { InteractionGroup } from '../src/interaction/interactionGroup.js';
+import { InteractionGroup } from '../src/interaction/interaction-group.js';
 import { View } from '../src/view/view.js';
 import { BackgroundLayerGroup } from '../src/layer/background-layer-group.js';
 import { OverlayLayerGroup } from '../src/layer/overlay-layer-group.js';

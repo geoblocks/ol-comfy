@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
-import { DefaultGroupUid, InteractionGroup } from './interactionGroup.js';
+import { DefaultGroupUid, InteractionGroup } from './interaction-group.js';
 import Draw from 'ol/interaction/Draw.js';
 import VectorSource from 'ol/source/Vector.js';
 import { getOlcVirtualGroupUid } from '../uid.js';

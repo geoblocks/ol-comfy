@@ -2,7 +2,7 @@ import OlView from 'ol/View.js';
 import OlLayerTile from 'ol/layer/Tile.js';
 import { OSM } from 'ol/source.js';
 import OlInteractionDraw from 'ol/interaction/Draw.js';
-import { getDrawBoxOptions } from '../../src/interaction/drawShape.js';
+import { getDrawBoxOptions } from '../../src/interaction/draw-shape.js';
 import storeManager from '../store-manager.js';
 
 // Globally accessible values you need:
