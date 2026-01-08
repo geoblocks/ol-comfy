@@ -39,7 +39,7 @@ The source is transpiled to standard ES modules and published on npm.
 # Update the `CHANGES.md` file
 # Update the `vite.config.ts` file you have new example files
 npm run build
-npm version patch # Or minor, major
+npm version patch/minor/major
 npm publish
 git push --tags origin main
 npm run gh-pages
