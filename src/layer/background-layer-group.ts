@@ -32,6 +32,7 @@ export class BackgroundLayerGroup extends LayerGroup {
 
   /**
    * Set one background layer as visible, all others as not visible.
+   * DispatchLayerPropertyChanged is called if the matching layer is found but only on this one.
    */
   toggleVisible(layerUid: string) {
     const layers = this.layerGroup.getLayers().getArray();
@@ -39,5 +40,8 @@ export class BackgroundLayerGroup extends LayerGroup {
     layers.forEach((layer) => {
       layer.setVisible(layer === foundLayer);
     });
+    if (foundLayer) {
+      this.dispatchLayerPropertyChanged(layerUid, 'visible');
+    }
   }
 }

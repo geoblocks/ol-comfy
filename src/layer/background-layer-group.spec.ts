@@ -1,11 +1,13 @@
-import { describe, beforeEach, it, expect } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import OlLayerBase from 'ol/layer/Base.js';
-import OlLayerGroup from 'ol/layer/Group.js';
 import { BackgroundLayerGroup } from './background-layer-group.js';
 import { Map } from '../map/map.js';
 import { getLayerGroup } from '../test/test-data.js';
-import type OlEvent from 'ol/events/Event.js';
-import { getOlcUid } from '../uid.js';
+import {
+  LayerPropertyChangedEvent,
+  LayerPropertyChangedEventType,
+} from './layer-group.js';
+import { olcUidKey } from '../uid.js';
 
 describe('BackgroundLayerGroup', () => {
   let bgGroup: BackgroundLayerGroup;
@@ -27,7 +29,7 @@ describe('BackgroundLayerGroup', () => {
     expect(bgGroup.getFirstVisible()).toBe(secondLayer);
   });
 
-  it('should toggleVisible', () =>
+  it('should toggleVisible', async () =>
     new Promise((done) => {
       const secondLayer = new OlLayerBase({});
       const expectedGroup = getLayerGroup(bgGroup, 0).getLayers().getArray();
@@ -41,20 +43,11 @@ describe('BackgroundLayerGroup', () => {
       expect(expectedGroup[0]!.getVisible()).toBeTruthy();
       expect(expectedGroup[1]!.getVisible()).toBeFalsy();
       // Wait the events to execute this final async test
-      let eventsCounter = 0;
-      bgGroup.getLayerGroup().on('change', (event: OlEvent) => {
-        // Two layers = two events.
-        eventsCounter++;
-        if (eventsCounter === 2) {
-          const layerGroup = event.target as OlLayerGroup;
-          const visibleLayer = layerGroup
-            .getLayers()
-            .getArray()
-            .find((layer) => layer.getVisible());
-          expect(visibleLayer).toBeDefined();
-          expect(getOlcUid(visibleLayer!)).toEqual('secondLayer');
-          done('Done');
-        }
+      bgGroup.once(LayerPropertyChangedEventType, (evt: LayerPropertyChangedEvent) => {
+        expect(evt.propertyKey).toEqual('visible');
+        expect(evt[olcUidKey]).toEqual('secondLayer');
+        expect(expectedGroup[1]!.getVisible()).toBeTruthy();
+        done('Done');
       });
       bgGroup.toggleVisible('secondLayer');
     }));

@@ -2,6 +2,9 @@
 
 List changes at major/minor level. Patches should be straightforward.
 
+# 2.1.0
+- Toggling background layer group visibility now triggers a LayerPropertyChangedEventType. 
+
 # 2.0.0
 - Stop adding breaking changes in minor versions.
 - Drop RXJS, use ol/native mechanisms instead.
