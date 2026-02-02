@@ -1,6 +1,6 @@
 {
   "name": "@geoblocks/ol-comfy",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Comfortable and convenient ol shortcuts for standard usage.",
   "type": "module",
   "files": [
