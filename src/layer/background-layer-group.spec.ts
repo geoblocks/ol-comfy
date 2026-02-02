@@ -43,12 +43,46 @@ describe('BackgroundLayerGroup', () => {
       expect(expectedGroup[0]!.getVisible()).toBeTruthy();
       expect(expectedGroup[1]!.getVisible()).toBeFalsy();
       // Wait the events to execute this final async test
-      bgGroup.once(LayerPropertyChangedEventType, (evt: LayerPropertyChangedEvent) => {
-        expect(evt.propertyKey).toEqual('visible');
-        expect(evt[olcUidKey]).toEqual('secondLayer');
-        expect(expectedGroup[1]!.getVisible()).toBeTruthy();
-        done('Done');
+      let countEvent = 0;
+      bgGroup.on(LayerPropertyChangedEventType, (evt: LayerPropertyChangedEvent) => {
+        if (evt[olcUidKey] === 'firstLayer') {
+          countEvent++;
+          expect(evt.propertyKey).toEqual('visible');
+        }
+        if (evt[olcUidKey] === 'secondLayer') {
+          countEvent++;
+          expect(expectedGroup[1]!.getVisible()).toBeTruthy();
+          expect(evt.propertyKey).toEqual('visible');
+          expect(countEvent).toEqual(2);
+          done('Done');
+        }
       });
       bgGroup.toggleVisible('secondLayer');
+    }));
+
+  it('should toggleVisible all off', async () =>
+    new Promise((done) => {
+      const secondLayer = new OlLayerBase({});
+      const expectedGroup = getLayerGroup(bgGroup, 0).getLayers().getArray();
+      baseLayer.setVisible(false);
+      secondLayer.setVisible(true);
+      bgGroup.addLayer(baseLayer, 'firstLayer');
+      bgGroup.addLayer(secondLayer, 'secondLayer');
+      expect(expectedGroup.length).toEqual(2);
+      // Wait the events to execute this final async test
+      let countEvent = 0;
+      bgGroup.on(LayerPropertyChangedEventType, (evt: LayerPropertyChangedEvent) => {
+        countEvent++;
+        expect(evt.propertyKey).toEqual('visible');
+        if (evt[olcUidKey] === 'secondLayer') {
+          expect(expectedGroup[0]!.getVisible()).toBeFalsy();
+          expect(expectedGroup[1]!.getVisible()).toBeFalsy();
+          expect(countEvent).toEqual(1);
+          done('Done');
+        }
+      });
+      expect(expectedGroup[1]!.getVisible()).toBeTruthy();
+      bgGroup.toggleVisible('not-existing-layer');
+      expect(expectedGroup[1]!.getVisible()).toBeFalsy();
     }));
 });
