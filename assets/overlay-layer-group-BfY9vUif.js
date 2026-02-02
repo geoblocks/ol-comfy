@@ -27078,17 +27078,23 @@ class BackgroundLayerGroup extends LayerGroup2 {
   }
   /**
    * Set one background layer as visible, all others as not visible.
-   * DispatchLayerPropertyChanged is called if the matching layer is found but only on this one.
+   * DispatchLayerPropertyChanged is called for every changed layer.
    */
-  toggleVisible(layerUid) {
+  toggleVisible(targetLayerUid) {
     const layers = this.layerGroup.getLayers().getArray();
-    const foundLayer = layers.find((layer) => getOlcUid(layer) === layerUid);
     layers.forEach((layer) => {
-      layer.setVisible(layer === foundLayer);
+      const toggledLayerUid = getOlcUid(layer);
+      const targetLayer = toggledLayerUid === targetLayerUid ? layer : void 0;
+      let changed = false;
+      const newState = layer === targetLayer;
+      if (layer.getVisible() !== newState) {
+        changed = true;
+        layer.setVisible(newState);
+      }
+      if (toggledLayerUid && changed) {
+        this.dispatchLayerPropertyChanged(toggledLayerUid, "visible");
+      }
     });
-    if (foundLayer) {
-      this.dispatchLayerPropertyChanged(layerUid, "visible");
-    }
   }
 }
 class Map2 {

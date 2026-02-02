@@ -1,4 +1,4 @@
-import { b5 as getOlcVirtualGroupUid, aB as olcUidKey, b6 as olcVirtualGroupUidKey, b7 as getOlcUid, S as unByKey, b8 as isNil, b9 as getPointResolution, M as Map, B as BackgroundLayerGroup, b as OverlayLayerGroup } from "./overlay-layer-group-BXJ2xrUy.js";
+import { b5 as getOlcVirtualGroupUid, aB as olcUidKey, b6 as olcVirtualGroupUidKey, b7 as getOlcUid, S as unByKey, b8 as isNil, b9 as getPointResolution, M as Map, B as BackgroundLayerGroup, b as OverlayLayerGroup } from "./overlay-layer-group-BfY9vUif.js";
 const DefaultGroupUid = "olcInteractionGroup";
 class InteractionGroup {
   map;
