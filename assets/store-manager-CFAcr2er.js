@@ -1,4 +1,4 @@
-import { b5 as getOlcVirtualGroupUid, aB as olcUidKey, b6 as olcVirtualGroupUidKey, b7 as getOlcUid, S as unByKey, b8 as isNil, b9 as getPointResolution, M as Map, B as BackgroundLayerGroup, b as OverlayLayerGroup } from "./overlay-layer-group-BTOISlhP.js";
+import { b5 as getOlcVirtualGroupUid, aB as olcUidKey, b6 as olcVirtualGroupUidKey, b7 as getOlcUid, S as unByKey, b8 as isNil, b9 as getPointResolution, M as Map, B as BackgroundLayerGroup, b as OverlayLayerGroup } from "./overlay-layer-group-BXJ2xrUy.js";
 const DefaultGroupUid = "olcInteractionGroup";
 class InteractionGroup {
   map;
@@ -234,7 +234,7 @@ class MapEntry {
   olcOverlayLayerTop;
   olcOverlay;
   olcDrawInteractionGroup;
-  olcSelectInteractionGroup;
+  olcModifyInteractionGroup;
   /**
    * Create and set up the map.
    */
@@ -253,9 +253,9 @@ class MapEntry {
       this.olcMap.getMap(),
       "__interaction_group_draw__"
     );
-    this.olcSelectInteractionGroup = new InteractionGroup(
+    this.olcModifyInteractionGroup = new InteractionGroup(
       this.olcMap.getMap(),
-      "__interaction_group_select__"
+      "__interaction_group_modify__"
     );
   }
   /**
@@ -295,16 +295,16 @@ class MapEntry {
     return this.olcOverlay;
   }
   /**
-   * @returns the ol-comfy interaction-group.
+   * @returns the ol-comfy interaction-group to draw features.
    */
   getOlcDrawInteractionGroup() {
     return this.olcDrawInteractionGroup;
   }
   /**
-   * @returns the ol-comfy interaction-group.
+   * @returns the ol-comfy interaction-group to modify features.
    */
-  getOlcSelectInteractionGroup() {
-    return this.olcSelectInteractionGroup;
+  getOlcModifyInteractionGroup() {
+    return this.olcModifyInteractionGroup;
   }
 }
 const DEFAULT_STORE_ID = "__default_store_id__";

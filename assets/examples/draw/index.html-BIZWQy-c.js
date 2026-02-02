@@ -1,8 +1,8 @@
-import { c as PointerInteraction, d as TRUE, e as always, I as InteractionProperty, C as Collection, f as fromUserCoordinate, g as BaseEvent, p as primaryAction, h as altKeyOnly, s as singleClick, V as VectorLayer, i as CollectionEventType, E as EventType, j as boundingExtent, k as createOrUpdateFromCoordinate, l as Point, m as MapBrowserEventType, n as getUid, o as equals, q as distance, r as closestOnSegment, t as toUserCoordinate, u as fromUserExtent, v as toUserExtent, w as buffer, x as squaredDistance, y as equals$1, z as never, A as createEditingStyle, D as squaredDistanceToSegment, F as FALSE, G as createEmpty, H as intersects, J as getIntersectionPoint, K as unlistenByKey, L as listen, N as clear, Q as closestOnCircle, R as fromCircle, S as unByKey, U as Style, a as View, T as TileLayer, O as OSM, W as overEvery, X as platformModifierKeyOnly, Y as CircleStyle, _ as Stroke, $ as Fill, a0 as click } from "../../overlay-layer-group-BTOISlhP.js";
-import { F as Feature, R as RBush, V as VectorSource, a as VectorEventType, b as RenderFeature } from "../../Vector-D1eER0Rr.js";
-import { g as getTraceTargetUpdate, a as getTraceTargets, b as getCoordinate, D as Draw } from "../../Draw-DAsUSUYe.js";
-import { s as storeManager } from "../../store-manager-ofW-ldOS.js";
-import "../../LineString-DRa7gE46.js";
+import { c as PointerInteraction, d as TRUE, e as always, I as InteractionProperty, C as Collection, f as fromUserCoordinate, g as BaseEvent, p as primaryAction, h as altKeyOnly, s as singleClick, V as VectorLayer, i as CollectionEventType, E as EventType, j as boundingExtent, k as createOrUpdateFromCoordinate, l as Point, m as MapBrowserEventType, n as getUid, o as equals, q as distance, r as closestOnSegment, t as toUserCoordinate, u as fromUserExtent, v as toUserExtent, w as buffer, x as squaredDistance, y as equals$1, z as never, A as createEditingStyle, D as squaredDistanceToSegment, F as FALSE, G as createEmpty, H as intersects, J as getIntersectionPoint, K as unlistenByKey, L as listen, N as clear, Q as closestOnCircle, R as fromCircle, S as unByKey, U as Style, a as View, T as TileLayer, O as OSM, W as overEvery, X as platformModifierKeyOnly, Y as CircleStyle, _ as Stroke, $ as Fill, a0 as click } from "../../overlay-layer-group-BXJ2xrUy.js";
+import { F as Feature, R as RBush, V as VectorSource, a as VectorEventType, b as RenderFeature } from "../../Vector-BIHX4W-1.js";
+import { g as getTraceTargetUpdate, a as getTraceTargets, b as getCoordinate, D as Draw } from "../../Draw-FWa1ZExm.js";
+import { s as storeManager } from "../../store-manager-CFAcr2er.js";
+import "../../LineString-kcVHKi4T.js";
 const TranslateEventType = {
   /**
    * Triggered upon feature translation start.
@@ -2558,16 +2558,16 @@ const setupDrawing = () => {
       delayOnDeleteAction.bind(void 0)
     )
   });
-  mapEntry.getOlcSelectInteractionGroup().add(modifyInteractionId, modify);
+  mapEntry.getOlcModifyInteractionGroup().add(modifyInteractionId, modify);
   translate = new Translate({
     layers: [drawLayer],
     condition: platformModifierKeyOnly
   });
-  mapEntry.getOlcSelectInteractionGroup().add("translate", translate);
+  mapEntry.getOlcModifyInteractionGroup().add("translate", translate);
   snap = new Snap({
     source
   });
-  mapEntry.getOlcSelectInteractionGroup().add("snap", snap);
+  mapEntry.getOlcModifyInteractionGroup().add("snap", snap);
   eventKeys.push(
     mapEntry.getOlcDrawInteractionGroup().find(pointInteractionId)?.on("drawend", () => {
       print(`Point added.`);
@@ -2623,7 +2623,7 @@ const onDeleteAction = (mapBrowserEvent) => {
       const features = overlayLayerGroup.getFeaturesCollection(layer1Id)?.getArray() || [];
       if (features.includes(feature)) {
         overlayLayerGroup.removeFeatures(layer1Id, [feature]);
-        const modify2 = mapEntry.getOlcSelectInteractionGroup().find(modifyInteractionId);
+        const modify2 = mapEntry.getOlcModifyInteractionGroup().find(modifyInteractionId);
         modify2?.setActive(false);
         modify2?.setActive(true);
       }
