@@ -129,19 +129,19 @@ const setupDrawing = () => {
   mapEntry.getOlcModifyInteractionGroup().add('snap', snap);
   // Custom listener for this component.
   // Case where we can't directly reach the drawPoint or drawLine instance.
+  const pointInteraction = mapEntry
+    .getOlcDrawInteractionGroup()
+    .find(pointInteractionId) as OlInteractionDraw;
+  const lineInteraction = mapEntry
+    .getOlcDrawInteractionGroup()
+    .find(lineInteractionId) as OlInteractionDraw;
   eventKeys.push(
-    mapEntry
-      .getOlcDrawInteractionGroup()
-      .find(pointInteractionId)
-      ?.on('drawend', () => {
-        print(`Point added.`);
-      }),
-    mapEntry
-      .getOlcDrawInteractionGroup()
-      .find(lineInteractionId)
-      ?.on('drawend', () => {
-        print(`Line added.`);
-      }),
+    pointInteraction.on('drawend', () => {
+      print(`Point added.`);
+    }),
+    lineInteraction.on('drawend', () => {
+      print(`Line added.`);
+    }),
   );
 };
 
