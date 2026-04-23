@@ -20,6 +20,8 @@ import OlSourceCluster from 'ol/source/Cluster.js';
 import { getFeaturesExtent } from '../feature/utils.js';
 import type { EventsKey } from 'ol/events.js';
 import BaseEvent from 'ol/events/Event.js';
+import type { CombinedOnSignature, EventTypes, OnSignature } from 'ol/Observable.js';
+import type { Types } from 'ol/ObjectEventType.js';
 
 export const DefaultOverlayLayerGroupUid = 'olcOverlayLayerGroupUid';
 
@@ -75,27 +77,29 @@ export class FeaturePropertyChangedEvent extends BaseEvent {
 }
 
 // Typesafe ol events.
-export type FeatureAffectedOnSignature = (
-  type: typeof FeatureAffectedEventType,
-  listener: (event: FeatureAffectedEvent) => void,
-) => EventsKey;
-export type FeaturePropertyChangedOnSignature = (
-  type: typeof FeaturePropertyChangedEventType,
-  listener: (event: FeaturePropertyChangedEvent) => void,
-) => EventsKey;
-export type OverlayLayerGroupOnSignature = FeatureAffectedOnSignature &
-  FeaturePropertyChangedOnSignature &
-  LayerGroupOnSignature; // default from parent class.
-
+export type OverlayLayerGroupOnSignature<Return> = LayerGroupOnSignature<Return> &
+  OnSignature<typeof FeatureAffectedEventType, FeatureAffectedEvent, Return> &
+  OnSignature<
+    typeof FeaturePropertyChangedEventType,
+    FeaturePropertyChangedEvent,
+    Return
+  > &
+  CombinedOnSignature<
+    | EventTypes
+    | Types
+    | typeof FeatureAffectedEventType
+    | typeof FeaturePropertyChangedEventType,
+    Return
+  >;
 /**
  * LayerGroup specialized to manage layers with features (mostly vector layers).
  * Each instance must have a unique name (the default name will be valid for the first group).
  * The default position is 20.
  */
 export class OverlayLayerGroup extends LayerGroup {
-  declare on: OverlayLayerGroupOnSignature;
-  declare once: OverlayLayerGroupOnSignature;
-  declare un: OverlayLayerGroupOnSignature;
+  declare on: OverlayLayerGroupOnSignature<EventsKey>;
+  declare once: OverlayLayerGroupOnSignature<EventsKey>;
+  declare un: OverlayLayerGroupOnSignature<void>;
 
   constructor(map: OlMap, options: LayerGroupOptions = {}) {
     const layerGroupUid = options.groupUid ?? DefaultOverlayLayerGroupUid;

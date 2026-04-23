@@ -8,10 +8,11 @@ import type { ViewStateLayerStateExtent } from 'ol/View.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { isNil, uniq } from '../utils.js';
 import { getOlcUid, olcUidKey } from '../uid.js';
-import BaseObject from 'ol/Object.js';
+import BaseObject, { ObjectEvent } from 'ol/Object.js';
 import type { EventsKey } from 'ol/events.js';
 import BaseEvent from 'ol/events/Event.js';
-import type { EventTypes, OnSignature } from 'ol/Observable.js';
+import type { CombinedOnSignature, EventTypes, OnSignature } from 'ol/Observable.js';
+import type { Types } from 'ol/ObjectEventType.js';
 
 /**
  * Options to create a layer group.
@@ -65,17 +66,17 @@ export class LayerPropertyChangedEvent extends BaseEvent {
 }
 
 // Typesafe ol events.
-export type LayerAffectedOnSignature = (
-  type: typeof LayerAffectedEventType,
-  listener: (event: LayerAffectedEvent) => void,
-) => EventsKey;
-export type LayerPropertyChangedOnSignature = (
-  type: typeof LayerPropertyChangedEventType,
-  listener: (event: LayerPropertyChangedEvent) => void,
-) => EventsKey;
-export type LayerGroupOnSignature = LayerAffectedOnSignature &
-  LayerPropertyChangedOnSignature &
-  OnSignature<EventTypes, Event, EventsKey>; // Default Ol
+export type LayerGroupOnSignature<Return> = OnSignature<EventTypes, BaseEvent, Return> & // Default Ol
+  OnSignature<Types, ObjectEvent, Return> &
+  OnSignature<typeof LayerAffectedEventType, LayerAffectedEvent, Return> &
+  OnSignature<typeof LayerPropertyChangedEventType, LayerPropertyChangedEvent, Return> &
+  CombinedOnSignature<
+    | EventTypes
+    | Types
+    | typeof LayerAffectedEventType
+    | typeof LayerPropertyChangedEventType,
+    Return
+  >;
 
 /**
  * Parent (abstract) class for a layer group. Helps to manipulate one layer group.
@@ -87,9 +88,9 @@ export class LayerGroup extends BaseObject {
   // @ts-expect-error this will be handled by the child classes
   protected layerGroup: OlLayerGroup;
 
-  declare on: LayerGroupOnSignature;
-  declare once: LayerGroupOnSignature;
-  declare un: LayerGroupOnSignature;
+  declare on: LayerGroupOnSignature<EventsKey>;
+  declare once: LayerGroupOnSignature<EventsKey>;
+  declare un: LayerGroupOnSignature<void>;
 
   constructor(map: OlMap) {
     super();
