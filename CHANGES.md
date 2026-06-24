@@ -2,6 +2,10 @@
 
 List changes at major/minor level. Patches should be straightforward.
 
+# 3.0.0
+- Layer-group's `getLayer` renamed to `findLayer`.
+- Interaction's `findByIncluding` is now called `filterStartsWith`, and it's looking for a prefix.
+
 # 2.1.0
 - Toggling background layer group visibility now triggers a LayerPropertyChangedEventType. 
 
