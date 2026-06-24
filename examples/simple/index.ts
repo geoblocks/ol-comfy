@@ -52,8 +52,8 @@ overlayLayerGroup.addLayer(overlayLayer, overlayLayerId);
 // Then, no matter where you are in your code, you can access the map with:
 olcMap.getMap();
 // The layer, or layer group functionalities with:
-backgroundLayerGroup.getLayer(backgroundLayerId);
+backgroundLayerGroup.findLayer(backgroundLayerId);
 // Or
-overlayLayerGroup.getLayer(overlayLayerId);
+overlayLayerGroup.findLayer(overlayLayerId);
 // And you can be sure that you can find you layer back, and that
 // the background layer is not above the overlay layers.

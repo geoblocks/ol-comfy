@@ -54,7 +54,7 @@ describe('Interaction', () => {
     expect(found).toBe(drawInteraction);
   });
 
-  it('should find interactions including a uidPart', () => {
+  it('should find interactions starting by uidPart', () => {
     const drawInteraction2 = new Draw({ source: new VectorSource(), type: 'Point' });
     const drawInteraction3 = new Draw({ source: new VectorSource(), type: 'Point' });
     const drawInteraction4 = new Draw({ source: new VectorSource(), type: 'Point' });
@@ -62,16 +62,16 @@ describe('Interaction', () => {
     interactionGroup.add('d-raw', drawInteraction2);
     interactionGroup.add('draw-2-b', drawInteraction3);
     interactionGroup.add('test_draw', drawInteraction4);
-    const found = interactionGroup.findByIncluding('draw');
-    // Every item matches except one.
-    expect(found.length).toBe(3);
+    const found = interactionGroup.filterStartsWith('draw');
+    // Only one item matches.
+    expect(found.length).toBe(1);
   });
 
   it('should remove an interaction by uid', () => {
     interactionGroup.add(drawInteractionUid, drawInteraction);
     interactionGroup.remove(drawInteractionUid);
     const found = interactionGroup.find(drawInteractionUid);
-    expect(found).toBeUndefined();
+    expect(found).toBeNull();
   });
 
   it('should check if an interaction exists', () => {

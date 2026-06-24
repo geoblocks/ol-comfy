@@ -2,7 +2,7 @@ import OlCollection from 'ol/Collection.js';
 import OlBaseObject from 'ol/Object.js';
 
 /**
- * Get an OpenLayers object and return it sorted by the given key property.
+ * Insert an object at a specific position, keeping the order.
  */
 export const insertAtKeepOrder = <T extends OlBaseObject>(
   objects: OlCollection<T>,

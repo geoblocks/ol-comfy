@@ -81,7 +81,7 @@ const eventKeys: EventsKey[] = [];
  */
 const setupDrawing = () => {
   // Set up the layer to draw in.
-  const drawLayer = mapEntry.getOlcOverlayLayer().getLayer(layer1Id) as
+  const drawLayer = mapEntry.getOlcOverlayLayer().findLayer(layer1Id) as
     | OlLayerVector<OlSourceVector<OlFeature>>
     | undefined;
   const source = drawLayer?.getSource();

@@ -16,3 +16,36 @@ export const getSortedOlObjectsByProperty = <T extends OlBaseObject>(
     return prop1 > prop2 ? 1 : -1;
   });
 };
+
+/**
+ * Find an object with a specific key and value.
+ */
+export const findObject = <T extends OlBaseObject>(
+  objects: T[],
+  key: string,
+  value: unknown,
+): T | null => {
+  return objects.find((obj) => obj.get(key) === value) ?? null;
+};
+
+/**
+ * Filter objects by a specific key and value.
+ */
+export const filterObjects = <T extends OlBaseObject>(
+  objects: T[],
+  key: string,
+  value: unknown,
+): T[] => {
+  return objects.filter((obj) => obj.get(key) === value);
+};
+
+/**
+ * Filter objects by a specific key and value, where the value starts with the given string.
+ */
+export const filterObjectsStartsWith = <T extends OlBaseObject>(
+  objects: T[],
+  key: string,
+  value: unknown,
+): T[] => {
+  return objects.filter((obj) => obj.get(key)?.startsWith(value));
+};

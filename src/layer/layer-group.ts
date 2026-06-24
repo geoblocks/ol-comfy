@@ -5,9 +5,10 @@ import OlLayerBase from 'ol/layer/Base.js';
 import OlLayerLayer from 'ol/layer/Layer.js';
 import OlSourceSource from 'ol/source/Source.js';
 import type { ViewStateLayerStateExtent } from 'ol/View.js';
+import { filterObjectsStartsWith, findObject } from '../base.js';
 import { insertAtKeepOrder } from '../collection.js';
 import { isNil, uniq } from '../utils.js';
-import { getOlcUid, olcUidKey } from '../uid.js';
+import { olcUidKey } from '../uid.js';
 import BaseObject, { ObjectEvent } from 'ol/Object.js';
 import type { EventsKey } from 'ol/events.js';
 import BaseEvent from 'ol/events/Event.js';
@@ -132,12 +133,19 @@ export class LayerGroup extends BaseObject {
    * Retrieve a layer currently in the layer group.
    * @returns The matching layer or null.
    */
-  getLayer(layerUid: string): OlLayerBase | null {
-    return (
-      this.layerGroup
-        .getLayers()
-        .getArray()
-        .find((layer) => getOlcUid(layer) === layerUid) || null
+  findLayer(layerUid: string): OlLayerBase | null {
+    return findObject(this.layerGroup.getLayers().getArray(), olcUidKey, layerUid);
+  }
+
+  /**
+   * Retrieve all layers currently in the layer group that start with a specific UID.
+   * @returns An array of matching layers.
+   */
+  findLayersStartsWith(layerUidPrefix: string): OlLayerBase[] {
+    return filterObjectsStartsWith(
+      this.layerGroup.getLayers().getArray(),
+      olcUidKey,
+      layerUidPrefix,
     );
   }
 
@@ -178,7 +186,7 @@ export class LayerGroup extends BaseObject {
    * Set a property of a layer and fires a "LayerPropertyChanged" event if the value has changed.
    */
   setLayerProperty(layerUid: string, propertyKey: string, value: unknown) {
-    const layer = this.getLayer(layerUid);
+    const layer = this.findLayer(layerUid);
     if (!layer || layer?.get(propertyKey) === value) {
       return;
     }
@@ -198,7 +206,7 @@ export class LayerGroup extends BaseObject {
    */
   dispatchLayerPropertyChanged(layerUid: string, propertyKey: string) {
     this.dispatchEvent(new LayerPropertyChangedEvent(layerUid, propertyKey));
-    this.getLayer(layerUid)?.changed();
+    this.findLayer(layerUid)?.changed();
   }
 
   /**
@@ -216,7 +224,7 @@ export class LayerGroup extends BaseObject {
       console.error(error);
       return false;
     }
-    if (this.getLayer(layerUid)) {
+    if (this.findLayer(layerUid)) {
       return false;
     }
     layer.set(olcUidKey, layerUid);

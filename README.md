@@ -21,9 +21,9 @@ using ol-comfy.
 
 - [Documentation](https://geoblocks.github.io/ol-comfy/apidoc/index.html);
 - [Examples](https://geoblocks.github.io/ol-comfy/examples/index.html);
-- [Wiki](https://github.com/geoblocks/ol-comfy/wiki).
-- [Source code](https://github.com/geoblocks/ol-comfy)
-- [Changelog](https://github.com/geoblocks/ol-comfy/blob/main/CHANGELOG.md)
+- [Wiki](https://github.com/geoblocks/ol-comfy/wiki);
+- [Source code](https://github.com/geoblocks/ol-comfy);
+- [Changelog](https://github.com/geoblocks/ol-comfy/blob/main/CHANGELOG.md);
 
 ## Local development
 
