@@ -113,7 +113,7 @@ export class OverlayLayerGroup extends LayerGroup {
    * @param layerUid the id of the layer to add features into.
    */
   getVectorLayer(layerUid: string): OlLayerVector<OlSourceVector> | null {
-    const layer = super.getLayer(layerUid);
+    const layer = super.findLayer(layerUid);
     return layer instanceof OlLayerVector ? layer : null;
   }
 
@@ -275,7 +275,7 @@ export class OverlayLayerGroup extends LayerGroup {
     features: OlFeature[],
     propertyKey: string,
   ) {
-    this.getLayer(layerUid)?.changed();
+    this.findLayer(layerUid)?.changed();
     this.dispatchEvent(new FeaturePropertyChangedEvent(layerUid, propertyKey, features));
   }
 

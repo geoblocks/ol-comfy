@@ -39,6 +39,25 @@ describe('LayersStore', () => {
       expect(getLayerGroup(layerGroup, 0).getLayers().getLength()).toEqual(1);
     }));
 
+  it('should findLayer', () => {
+    layerGroup.addLayer(baseLayer, 'my_layer');
+    layerGroup.addLayer(new OlLayerBase({}), 'my_2nd_Layer');
+    const found = layerGroup.findLayer('my_layer');
+    expect(found).toBe(baseLayer);
+    const notFound = layerGroup.findLayer('nonExistentLayer');
+    expect(notFound).toBeNull();
+  });
+
+  it('should findLayersStartsWith', () => {
+    layerGroup.addLayer(baseLayer, 'my_layer');
+    layerGroup.addLayer(new OlLayerBase({}), 'my_2nd_Layer');
+    layerGroup.addLayer(new OlLayerBase({}), '3th_of_my_layer');
+    const found = layerGroup.findLayersStartsWith('my');
+    expect(found.length).toBe(2);
+    const notFound = layerGroup.findLayersStartsWith('nonExistentLayer');
+    expect(notFound.length).toBe(0);
+  });
+
   it('should clearAll', () => {
     layerGroup.addLayer(baseLayer, 'myLayer');
     expect(getLayerGroup(layerGroup, 0).getLayers().getLength()).toEqual(1);
@@ -136,7 +155,7 @@ describe('LayersStore', () => {
         layerGroup.on(LayerPropertyChangedEventType, (evt: LayerPropertyChangedEvent) => {
           expect(evt[olcUidKey]).toBe(layerUid);
           expect(evt.propertyKey).toEqual(propKey);
-          expect(layerGroup.getLayer(layerUid)?.get(propKey)).toEqual('success');
+          expect(layerGroup.findLayer(layerUid)?.get(propKey)).toEqual('success');
           done('Done');
         });
         baseLayer.set(propKey, 'init');

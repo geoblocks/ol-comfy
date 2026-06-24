@@ -6,6 +6,7 @@ import {
   olcUidKey,
   olcVirtualGroupUidKey,
 } from '../uid.js';
+import { filterObjects, filterObjectsStartsWith, findObject } from '../base.js';
 
 export const DefaultGroupUid = 'olcInteractionGroup';
 
@@ -26,16 +27,15 @@ export class InteractionGroup {
    * @returns all the interaction of the wanted group.
    */
   getGroupInteractions(): OlInteraction[] {
-    return this.map
-      .getInteractions()
-      .getArray()
-      .filter(
-        (interaction) => getOlcVirtualGroupUid(interaction) === this.virtualGroupUid,
-      );
+    return filterObjects(
+      this.map.getInteractions().getArray(),
+      olcVirtualGroupUidKey,
+      this.virtualGroupUid,
+    );
   }
 
   /**
-   * Adds the given interaction to the given map with an uid.
+   * Adds the given interaction (with an uid) to the map.
    * The interaction can't be in multiple groups at the same time.
    * @param uid - The uid to associate with the interaction
    * @param interaction - The interaction to add
@@ -60,25 +60,21 @@ export class InteractionGroup {
   }
 
   /**
-   * Finds an interaction by its uid
+   * Finds an interaction of this group by its uid.
    * @param uid - The uid of the interaction to find
-   * @returns The interaction if found, undefined otherwise
+   * @returns The interaction if found, null otherwise
    */
-  find(uid: string): OlInteraction | undefined {
-    return this.getGroupInteractions().find((interaction) => {
-      return getOlcUid(interaction) === uid;
-    });
+  find(uid: string): OlInteraction | null {
+    return findObject(this.getGroupInteractions(), olcUidKey, uid);
   }
 
   /**
-   * Finds all interaction having uid included in the provided uid.
-   * @param uidPart - A start part uid of the interaction to find.
-   * @returns The interaction if found or undefined otherwise.
+   * Finds all interaction of this group having their uid starting by the provided prefix.
+   * @param uidPrefix - A start part uid of the interaction to find.
+   * @returns The interactions if found or an empty array otherwise.
    */
-  findByIncluding(uidPart: string): OlInteraction[] {
-    return this.getGroupInteractions().filter((interaction) => {
-      return `${getOlcUid(interaction)}`.includes(uidPart);
-    });
+  filterStartsWith(uidPrefix: string): OlInteraction[] {
+    return filterObjectsStartsWith(this.getGroupInteractions(), olcUidKey, uidPrefix);
   }
 
   /**
